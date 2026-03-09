@@ -1,4 +1,8 @@
 create database if not exists gestion_akoho;
+GO
+
+USE gestion_akoho;
+GO
 
 CREATE TABLE race(
    Id_race INT IDENTITY,
@@ -8,6 +12,7 @@ CREATE TABLE race(
    prix_vente_atody FLOAT,
    PRIMARY KEY(Id_race)
 );
+GO
 
 CREATE TABLE description_race(
    Id_description_race INT IDENTITY,
@@ -18,6 +23,7 @@ CREATE TABLE description_race(
    PRIMARY KEY(Id_description_race),
    FOREIGN KEY(Id_race) REFERENCES race(Id_race)
 );
+GO
 
 CREATE TABLE lot_akoho(
    Id_lot_akoho INT IDENTITY,
@@ -30,6 +36,7 @@ CREATE TABLE lot_akoho(
    PRIMARY KEY(Id_lot_akoho),
    FOREIGN KEY(Id_race) REFERENCES race(Id_race)
 );
+GO
 
 CREATE TABLE lot_atody(
    Id_lot_atody INT IDENTITY,
@@ -40,6 +47,7 @@ CREATE TABLE lot_atody(
    PRIMARY KEY(Id_lot_atody),
    FOREIGN KEY(Id_lot_akoho) REFERENCES lot_akoho(Id_lot_akoho)
 );
+GO
 
 CREATE TABLE naissance_oeuf(
    Id_naissance_oeuf INT IDENTITY,
@@ -49,6 +57,7 @@ CREATE TABLE naissance_oeuf(
    PRIMARY KEY(Id_naissance_oeuf),
    FOREIGN KEY(Id_lot_atody) REFERENCES lot_atody(Id_lot_atody)
 );
+GO
 
 CREATE TABLE akoho_maty(
    Id_akoho_maty INT IDENTITY,
@@ -58,3 +67,4 @@ CREATE TABLE akoho_maty(
    PRIMARY KEY(Id_akoho_maty),
    FOREIGN KEY(Id_lot_akoho) REFERENCES lot_akoho(Id_lot_akoho)
 );
+GO
