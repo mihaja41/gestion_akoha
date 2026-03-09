@@ -11,6 +11,10 @@ const cors = require('cors');
 
 const descriptionRaceRoutes = require('./routes/descriptionRace.routes');
 const lotAkohoRoutes = require('./routes/lotAkoho.routes');
+const raceRoutes = require('./routes/race.routes');
+const lotAtodyRoutes = require('./routes/lotAtody.routes');
+const naissanceOeufRoutes = require('./routes/naissanceOeuf.routes');
+const akohoMatyRoutes = require('./routes/akohoMaty.routes');
 
 const errorHandler = require('./middlewares/errorHandler');
 
@@ -27,6 +31,10 @@ app.use(express.json());        // Parser le body JSON (comme @RequestBody en Sp
 
 app.use('/api/description-races', descriptionRaceRoutes);
 app.use('/api/lots-akoho', lotAkohoRoutes);
+app.use('/api/races', raceRoutes);
+app.use('/api/lots-atody', lotAtodyRoutes);
+app.use('/api/naissances-oeuf', naissanceOeufRoutes);
+app.use('/api/akoho-maty', akohoMatyRoutes);
 
 // Route de test / health check
 app.get('/api/health', (req, res) => {

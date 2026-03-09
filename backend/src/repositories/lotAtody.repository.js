@@ -1,0 +1,58 @@
+const { sql, getPool } = require('../config/database');
+
+async function findAll() {
+    const pool = await getPool();
+    const result = await pool.request().query('SELECT * FROM lot_atody');
+    return result.recordset;
+}
+
+async function findById(id) {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input('id', sql.Int, id)
+        .query('SELECT * FROM lot_atody WHERE Id_lot_atody = @id');
+    return result.recordset[0] || null;
+}
+
+async function create({ numero, date_entree, nombre, Id_lot_akoho }) {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input('numero', sql.Int, numero)
+        .input('date_entree', sql.Date, date_entree)
+        .input('nombre', sql.Int, nombre)
+        .input('Id_lot_akoho', sql.Int, Id_lot_akoho)
+        .query(`
+            INSERT INTO lot_atody (numero, date_entree, nombre, Id_lot_akoho)
+            OUTPUT INSERTED.*
+            VALUES (@numero, @date_entree, @nombre, @Id_lot_akoho)
+        `);
+    return result.recordset[0];
+}
+
+async function update(id, { numero, date_entree, nombre, Id_lot_akoho }) {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input('id', sql.Int, id)
+        .input('numero', sql.Int, numero)
+        .input('date_entree', sql.Date, date_entree)
+        .input('nombre', sql.Int, nombre)
+        .input('Id_lot_akoho', sql.Int, Id_lot_akoho)
+        .query(`
+            UPDATE lot_atody
+            SET numero = @numero, date_entree = @date_entree,
+                nombre = @nombre, Id_lot_akoho = @Id_lot_akoho
+            WHERE Id_lot_atody = @id;
+            SELECT * FROM lot_atody WHERE Id_lot_atody = @id;
+        `);
+    return result.recordset[0] || null;
+}
+
+async function deleteById(id) {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input('id', sql.Int, id)
+        .query('DELETE FROM lot_atody WHERE Id_lot_atody = @id');
+    return result.rowsAffected[0] > 0;
+}
+
+module.exports = { findAll, findById, create, update, deleteById };

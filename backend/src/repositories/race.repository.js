@@ -1,0 +1,58 @@
+const { sql, getPool } = require('../config/database');
+
+async function findAll() {
+    const pool = await getPool();
+    const result = await pool.request().query('SELECT * FROM race');
+    return result.recordset;
+}
+
+async function findById(id) {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input('id', sql.Int, id)
+        .query('SELECT * FROM race WHERE Id_race = @id');
+    return result.recordset[0] || null;
+}
+
+async function create({ nom, prix_sakafo, prix_vente, prix_vente_atody }) {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input('nom', sql.VarChar(50), nom)
+        .input('prix_sakafo', sql.Float, prix_sakafo)
+        .input('prix_vente', sql.Float, prix_vente)
+        .input('prix_vente_atody', sql.Float, prix_vente_atody)
+        .query(`
+            INSERT INTO race (nom, prix_sakafo, prix_vente, prix_vente_atody)
+            OUTPUT INSERTED.*
+            VALUES (@nom, @prix_sakafo, @prix_vente, @prix_vente_atody)
+        `);
+    return result.recordset[0];
+}
+
+async function update(id, { nom, prix_sakafo, prix_vente, prix_vente_atody }) {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input('id', sql.Int, id)
+        .input('nom', sql.VarChar(50), nom)
+        .input('prix_sakafo', sql.Float, prix_sakafo)
+        .input('prix_vente', sql.Float, prix_vente)
+        .input('prix_vente_atody', sql.Float, prix_vente_atody)
+        .query(`
+            UPDATE race
+            SET nom = @nom, prix_sakafo = @prix_sakafo,
+                prix_vente = @prix_vente, prix_vente_atody = @prix_vente_atody
+            WHERE Id_race = @id;
+            SELECT * FROM race WHERE Id_race = @id;
+        `);
+    return result.recordset[0] || null;
+}
+
+async function deleteById(id) {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input('id', sql.Int, id)
+        .query('DELETE FROM race WHERE Id_race = @id');
+    return result.rowsAffected[0] > 0;
+}
+
+module.exports = { findAll, findById, create, update, deleteById };
