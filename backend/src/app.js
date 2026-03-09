@@ -8,7 +8,10 @@
 
 const express = require('express');
 const cors = require('cors');
+
 const descriptionRaceRoutes = require('./routes/descriptionRace.routes');
+const lotAkohoRoutes = require('./routes/lotAkoho.routes');
+
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -23,6 +26,7 @@ app.use(express.json());        // Parser le body JSON (comme @RequestBody en Sp
 // ➜ Spring Boot : le path de base est défini ici, comme un @RequestMapping global
 
 app.use('/api/description-races', descriptionRaceRoutes);
+app.use('/api/lots-akoho', lotAkohoRoutes);
 
 // Route de test / health check
 app.get('/api/health', (req, res) => {
