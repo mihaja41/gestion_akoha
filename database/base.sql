@@ -1,12 +1,25 @@
-create database if not exists gestion_akoho;
+-- Créer la base si elle n'existe pas
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'gestion_akoho')
+BEGIN
+    CREATE DATABASE gestion_akoho;
+END
 GO
 
 USE gestion_akoho;
 GO
 
+-- Drop tables si elles existent déjà (ordre inverse des FK)
+IF OBJECT_ID('akoho_maty', 'U') IS NOT NULL DROP TABLE akoho_maty;
+IF OBJECT_ID('naissance_oeuf', 'U') IS NOT NULL DROP TABLE naissance_oeuf;
+IF OBJECT_ID('lot_atody', 'U') IS NOT NULL DROP TABLE lot_atody;
+IF OBJECT_ID('lot_akoho', 'U') IS NOT NULL DROP TABLE lot_akoho;
+IF OBJECT_ID('description_race', 'U') IS NOT NULL DROP TABLE description_race;
+IF OBJECT_ID('race', 'U') IS NOT NULL DROP TABLE race;
+GO
+
 CREATE TABLE race(
    Id_race INT IDENTITY,
-   nom VARCHAR(50) ,
+   nom VARCHAR(50),
    prix_sakafo FLOAT,
    prix_vente FLOAT,
    prix_vente_atody FLOAT,
@@ -16,9 +29,9 @@ GO
 
 CREATE TABLE description_race(
    Id_description_race INT IDENTITY,
-   age int,
+   age INT,
    variation_poids FLOAT,
-   lanja_sakafo FLOAT ,
+   lanja_sakafo FLOAT,
    Id_race INT NOT NULL,
    PRIMARY KEY(Id_description_race),
    FOREIGN KEY(Id_race) REFERENCES race(Id_race)
@@ -51,7 +64,7 @@ GO
 
 CREATE TABLE naissance_oeuf(
    Id_naissance_oeuf INT IDENTITY,
-   nombre_poussin VARCHAR(50) ,
+   nombre_poussin VARCHAR(50),
    date_naissance DATE,
    Id_lot_atody INT NOT NULL,
    PRIMARY KEY(Id_naissance_oeuf),
