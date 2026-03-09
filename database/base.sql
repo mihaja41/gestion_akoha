@@ -16,9 +16,9 @@ GO
 
 CREATE TABLE description_race(
    Id_description_race INT IDENTITY,
-   age VARCHAR(50) ,
+   age int,
    variation_poids FLOAT,
-   lanja_sakafo VARCHAR(50) ,
+   lanja_sakafo FLOAT ,
    Id_race INT NOT NULL,
    PRIMARY KEY(Id_description_race),
    FOREIGN KEY(Id_race) REFERENCES race(Id_race)
