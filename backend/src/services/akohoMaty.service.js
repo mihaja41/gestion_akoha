@@ -45,4 +45,8 @@ async function deleteById(id) {
     return true;
 }
 
-module.exports = { getAll, getById, create, update, deleteById };
+async function getAkohoMatyByIdLotAkohoAndDate(idLotAkoho, date) {
+    return await akohoMatyRepository.getAkohoMatyByIdLotAkohoAndDate(idLotAkoho, date);
+}
+
+module.exports = { getAll, getById, create, update, deleteById, getAkohoMatyByIdLotAkohoAndDate };

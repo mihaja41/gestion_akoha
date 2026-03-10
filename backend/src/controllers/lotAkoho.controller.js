@@ -31,4 +31,17 @@ async function deleteById(req, res, next) {
     } catch (error) { next(error); }
 }
 
-module.exports = { getAll, getById, create, update, deleteById };
+async function getSituation(req, res, next) {
+    try {
+        const id = parseInt(req.params.id);
+        const date = req.query.date;
+        if (!date) {
+            const error = new Error('Le paramètre "date" est obligatoire (format: YYYY-MM-DD)');
+            error.status = 400;
+            throw error;
+        }
+        res.json(await lotAkohoService.getSituationByIdAndDate(id, date));
+    } catch (error) { next(error); }
+}
+
+module.exports = { getAll, getById, create, update, deleteById, getSituation };

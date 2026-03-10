@@ -58,6 +58,88 @@ router.post('/', lotAkohoController.create);
 
 /**
  * @swagger
+ * /api/lots-akoho/{id}/situation:
+ *   get:
+ *     summary: Obtenir la situation complète d'un lot de poulets à une date donnée
+ *     tags: [LotsAkoho]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID du lot de poulets
+ *       - in: query
+ *         name: date
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Date pour le calcul (format YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: Situation du lot
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 numero:
+ *                   type: integer
+ *                   description: Numéro du lot
+ *                 nombreInitial:
+ *                   type: integer
+ *                   description: Nombre de poulets initial
+ *                 prixAchatTotal:
+ *                   type: number
+ *                   description: Prix d'achat total du lot
+ *                 valeurNourritureConsommee:
+ *                   type: number
+ *                   description: Valeur de la nourriture consommée (sans mort)
+ *                 poidsMoyenParPoulet:
+ *                   type: number
+ *                   description: Poids moyen par poulet en grammes
+ *                 prixVenteSansMort:
+ *                   type: number
+ *                   description: Prix de vente total sans compter les morts
+ *                 nombreMorts:
+ *                   type: integer
+ *                   description: Nombre de poulets morts
+ *                 nombreApresMort:
+ *                   type: integer
+ *                   description: Nombre de poulets restants
+ *                 ageEnJour:
+ *                   type: integer
+ *                   description: Age du lot en jours
+ *                 ageEnSemaine:
+ *                   type: number
+ *                   description: Age du lot en semaines
+ *                 prixVenteAvecMort:
+ *                   type: number
+ *                   description: Prix de vente des poulets restants (après mort)
+ *                 nombreOeufs:
+ *                   type: integer
+ *                   description: Nombre d'oeufs restants (total - naissances)
+ *                 valeurOeufs:
+ *                   type: number
+ *                   description: Valeur des oeufs restants
+ *                 beneficeSansMort:
+ *                   type: number
+ *                   description: Bénéfice sans compter les poulets morts
+ *                 beneficeAvecMort:
+ *                   type: number
+ *                   description: Bénéfice en comptant les poulets morts
+ *       400:
+ *         description: Paramètre date manquant ou date invalide
+ *       404:
+ *         description: Lot introuvable
+ *       500:
+ *         description: Erreur serveur
+ */
+router.get('/:id/situation', lotAkohoController.getSituation);
+
+/**
+ * @swagger
  * /api/lots-akoho/{id}:
  *   get:
  *     summary: Récupérer un lot de poulets par son ID

@@ -90,10 +90,22 @@ async function deleteById(id) {
     return result.rowsAffected[0] > 0;
 }
 
+/**
+ * Récupérer toutes les descriptions d'une race, triées par âge (semaine).
+ */
+async function findAllByRaceId(raceId) {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input('raceId', sql.Int, raceId)
+        .query('SELECT * FROM description_race WHERE Id_race = @raceId ORDER BY age ASC');
+    return result.recordset;
+}
+
 module.exports = {
     findAll,
     findById,
     create,
     update,
-    deleteById
+    deleteById,
+    findAllByRaceId
 };

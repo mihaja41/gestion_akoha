@@ -52,4 +52,20 @@ async function deleteById(id) {
     return result.rowsAffected[0] > 0;
 }
 
-module.exports = { findAll, findById, create, update, deleteById };
+async function getAkohoMatyByIdLotAkohoAndDate(idLotAkoho, date) {
+    const pool = await getPool();
+    const akohoMatys = await pool.request()
+        .input('idLotAkoho', sql.Int, idLotAkoho)
+        .input('date', sql.Date, date)
+        .query(`
+            SELECT * FROM akoho_maty
+            WHERE Id_lot_akoho = @idLotAkoho AND date_mort <= @date
+        `);
+    result = 0;
+    akohoMatys.recordset.forEach(akohoMaty => {
+        result += akohoMaty.nombre;
+    });
+    return result;
+}
+
+module.exports = { findAll, findById, create, update, deleteById, getAkohoMatyByIdLotAkohoAndDate };

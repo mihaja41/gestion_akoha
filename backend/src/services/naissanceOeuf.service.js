@@ -45,4 +45,11 @@ async function deleteById(id) {
     return true;
 }
 
-module.exports = { getAll, getById, create, update, deleteById };
+/**
+ * Calculer le nombre total de poussins nés pour des lots d'oeufs donnés, jusqu'à une date.
+ */
+async function getNombreNaissanceByLotAtodyIdsAndDate(lotAtodyIds, date) {
+    return await naissanceOeufRepository.sumNaissanceByLotAtodyIdsAndDate(lotAtodyIds, date);
+}
+
+module.exports = { getAll, getById, create, update, deleteById, getNombreNaissanceByLotAtodyIdsAndDate };

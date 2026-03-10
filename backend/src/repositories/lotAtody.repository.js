@@ -55,4 +55,16 @@ async function deleteById(id) {
     return result.rowsAffected[0] > 0;
 }
 
-module.exports = { findAll, findById, create, update, deleteById };
+/**
+ * Récupérer tous les lots d'oeufs d'un lot de poulets jusqu'à une date donnée.
+ */
+async function findByLotAkohoIdAndDate(idLotAkoho, date) {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input('idLotAkoho', sql.Int, idLotAkoho)
+        .input('date', sql.Date, date)
+        .query('SELECT * FROM lot_atody WHERE Id_lot_akoho = @idLotAkoho AND date_entree <= @date');
+    return result.recordset;
+}
+
+module.exports = { findAll, findById, create, update, deleteById, findByLotAkohoIdAndDate };

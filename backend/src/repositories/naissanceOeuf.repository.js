@@ -53,4 +53,21 @@ async function deleteById(id) {
     return result.rowsAffected[0] > 0;
 }
 
-module.exports = { findAll, findById, create, update, deleteById };
+/**
+ * Calculer le nombre total de poussins nés pour des lots d'oeufs donnés, jusqu'à une date.
+ */
+async function sumNaissanceByLotAtodyIdsAndDate(lotAtodyIds, date) {
+    const pool = await getPool();
+    if (!lotAtodyIds || lotAtodyIds.length === 0) return 0;
+    const params = lotAtodyIds.map((_, i) => `@id${i}`).join(',');
+    const request = pool.request().input('date', sql.Date, date);
+    lotAtodyIds.forEach((id, i) => request.input(`id${i}`, sql.Int, id));
+    const result = await request.query(`
+        SELECT COALESCE(SUM(CAST(nombre_poussin AS INT)), 0) as total
+        FROM naissance_oeuf
+        WHERE Id_lot_atody IN (${params}) AND date_naissance <= @date
+    `);
+    return result.recordset[0].total;
+}
+
+module.exports = { findAll, findById, create, update, deleteById, sumNaissanceByLotAtodyIdsAndDate };

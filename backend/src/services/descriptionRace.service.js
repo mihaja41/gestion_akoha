@@ -84,10 +84,18 @@ async function deleteById(id) {
     return true;
 }
 
+/**
+ * Récupérer toutes les descriptions d'une race, triées par âge (semaine).
+ */
+async function getAllByRaceId(raceId) {
+    return await descriptionRaceRepository.findAllByRaceId(raceId);
+}
+
 module.exports = {
     getAll,
     getById,
     create,
     update,
-    deleteById
+    deleteById,
+    getAllByRaceId
 };
