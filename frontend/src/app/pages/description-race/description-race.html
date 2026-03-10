@@ -1,0 +1,282 @@
+<!--
+  Template de la page CRUD Description Race.
+
+  ➜ Vue.js : ce serait le contenu de <template> dans DescriptionRace.vue
+  ➜ Ce template utilise :
+     - Bootstrap 5 pour le style (classes CSS)
+     - Bootstrap Icons pour les icônes (classes bi-*)
+     - Syntaxe Angular @if/@for (Angular 17+) au lieu de *ngIf/*ngFor
+
+  CORRESPONDANCE avec Vue.js :
+  ┌──────────────────────────────┬────────────────────────────────┐
+  │ Vue.js                       │ Angular                        │
+  ├──────────────────────────────┼────────────────────────────────┤
+  │ v-if="condition"             │ @if (condition) { }            │
+  │ v-for="item in list"         │ @for (item of list; track ...) │
+  │ v-model="variable"           │ [(ngModel)]="variable"         │
+  │ @click="method()"            │ (click)="method()"             │
+  │ :class="{ active: isActive }"│ [class.active]="isActive"      │
+  │ {{ variable }}               │ {{ variable }}  (identique !)  │
+  └──────────────────────────────┴────────────────────────────────┘
+-->
+
+<div class="container-fluid p-4">
+
+  <!-- ═══════════ EN-TÊTE DE PAGE ═══════════ -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">
+        <i class="bi bi-card-list me-2"></i>
+        Description des Races
+      </h2>
+      <p class="text-muted mb-0">
+        Paramètres de croissance par race et par âge
+      </p>
+    </div>
+
+    <!--
+      Bouton "Nouveau" pour ouvrir le modal de création.
+      (click)="prepareCreate()" → Appelle la méthode du composant
+      ➜ Vue.js : @click="prepareCreate()"
+      data-bs-toggle="modal" → Attribut Bootstrap pour ouvrir le modal
+    -->
+    <button class="btn btn-primary"
+            (click)="prepareCreate()"
+            data-bs-toggle="modal"
+            data-bs-target="#formModal">
+      <i class="bi bi-plus-circle me-1"></i>
+      Nouveau
+    </button>
+  </div>
+
+  <!-- ═══════════ MESSAGES D'ALERTE ═══════════ -->
+  <!--
+    @if (condition) { ... }
+    ➜ Vue.js : v-if="condition"
+    ➜ Affiche conditionnellement un élément dans le DOM
+  -->
+  @if (successMessage) {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle me-2"></i>
+      {{ successMessage }}
+      <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+    </div>
+  }
+
+  @if (errorMessage) {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      {{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+    </div>
+  }
+
+  <!-- ═══════════ INDICATEUR DE CHARGEMENT ═══════════ -->
+  @if (loading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="text-muted mt-2">Chargement des données...</p>
+    </div>
+  }
+
+  <!-- ═══════════ TABLEAU DES DONNÉES ═══════════ -->
+  <!--
+    @if (!loading) → Afficher le tableau seulement quand le chargement est terminé
+    ➜ Vue.js : v-if="!loading"
+  -->
+  @if (!loading) {
+    <div class="card shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th scope="col">#ID</th>
+                <th scope="col">Âge (semaines)</th>
+                <th scope="col">Variation Poids (g)</th>
+                <th scope="col">Lanja Sakafo (g)</th>
+                <th scope="col">Race</th>
+                <th scope="col" class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!--
+                @for : boucle sur les éléments
+                ➜ Vue.js : v-for="item in descriptionRaces" :key="item.Id_description_race"
+                ➜ 'track' est obligatoire (comme :key en Vue.js, pour l'optimisation du DOM)
+              -->
+              @for (item of descriptionRaces; track item.Id_description_race) {
+                <tr>
+                  <td>{{ item.Id_description_race }}</td>
+                  <td>{{ item.age }}</td>
+                  <td>{{ item.variation_poids }}</td>
+                  <td>{{ item.lanja_sakafo }}</td>
+                  <td>{{ getRaceName(item.Id_race) }}</td>
+                  <td class="text-center">
+                    <!--
+                      (click)="prepareEdit(item)" → Appelle la méthode avec l'élément en paramètre
+                      ➜ Vue.js : @click="prepareEdit(item)"
+                    -->
+                    <button class="btn btn-sm btn-outline-warning me-1"
+                            (click)="prepareEdit(item)"
+                            data-bs-toggle="modal"
+                            data-bs-target="#formModal"
+                            title="Modifier">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger"
+                            (click)="deleteItem(item)"
+                            title="Supprimer">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+
+              <!-- Message si la liste est vide -->
+              @if (descriptionRaces.length === 0) {
+                <tr>
+                  <td colspan="6" class="text-center text-muted py-4">
+                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                    Aucune description de race trouvée.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Footer du card avec le nombre total -->
+      <div class="card-footer text-muted">
+        <small>
+          <i class="bi bi-database me-1"></i>
+          {{ descriptionRaces.length }} enregistrement(s)
+        </small>
+      </div>
+    </div>
+  }
+
+  <!-- ═══════════ MODAL FORMULAIRE (Créer / Modifier) ═══════════ -->
+  <!--
+    Bootstrap 5 Modal : un formulaire popup qui sert pour la création ET la modification.
+    Le titre et le comportement changent selon formMode ('create' ou 'edit').
+  -->
+  <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- En-tête du modal -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="formModalLabel">
+            <!--
+              Expression ternaire dans le template :
+              ➜ Vue.js : {{ formMode === 'create' ? 'Texte A' : 'Texte B' }}
+              ➜ Angular : identique !
+            -->
+            @if (formMode === 'create') {
+              <i class="bi bi-plus-circle me-2"></i>Nouvelle Description
+            } @else {
+              <i class="bi bi-pencil-square me-2"></i>Modifier Description
+            }
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+
+        <!-- Corps du modal : le formulaire -->
+        <div class="modal-body">
+          <form>
+            <!--
+              Champ "Âge"
+              [(ngModel)]="formData.age" → Binding bidirectionnel
+              ➜ Vue.js : v-model="formData.age"
+              ➜ C'est EXACTEMENT le même concept !
+
+              'name' est OBLIGATOIRE quand on utilise ngModel dans un <form>
+              (Angular en a besoin pour enregistrer le contrôle du formulaire)
+            -->
+            <div class="mb-3">
+              <label for="age" class="form-label">Âge (semaines)</label>
+              <input type="number"
+                     class="form-control"
+                     id="age"
+                     name="age"
+                     [(ngModel)]="formData.age"
+                     placeholder="Ex: 4"
+                     required>
+            </div>
+
+            <div class="mb-3">
+              <label for="variationPoids" class="form-label">Variation Poids (g)</label>
+              <input type="number"
+                     class="form-control"
+                     id="variationPoids"
+                     name="variationPoids"
+                     [(ngModel)]="formData.variation_poids"
+                     placeholder="Ex: 150.5"
+                     step="0.01"
+                     required>
+            </div>
+
+            <div class="mb-3">
+              <label for="lanjaSakafo" class="form-label">Lanja Sakafo (g)</label>
+              <input type="number"
+                     class="form-control"
+                     id="lanjaSakafo"
+                     name="lanjaSakafo"
+                     [(ngModel)]="formData.lanja_sakafo"
+                     placeholder="Ex: 80.0"
+                     step="0.01"
+                     required>
+            </div>
+
+            <!--
+              <select> avec [(ngModel)] : exactement comme v-model sur un <select> en Vue.js.
+              On boucle sur les races avec @for pour créer les <option>.
+
+              IMPORTANT : [ngValue]="race.Id_race" au lieu de [value]="race.Id_race"
+              → ngValue garde le TYPE number, value convertirait en string.
+              → C'est un piège classique en Angular !
+            -->
+            <div class="mb-3">
+              <label for="idRace" class="form-label">Race</label>
+              <select class="form-select"
+                      id="idRace"
+                      name="idRace"
+                      [(ngModel)]="formData.Id_race"
+                      required>
+                <option [ngValue]="0" disabled>-- Choisir une race --</option>
+                @for (race of races; track race.Id_race) {
+                  <option [ngValue]="race.Id_race">{{ race.nom }}</option>
+                }
+              </select>
+            </div>
+          </form>
+        </div>
+
+        <!-- Pied du modal : boutons d'action -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle me-1"></i>
+            Annuler
+          </button>
+          <!--
+            (click)="save()" → Appelle la méthode save() du composant
+            ➜ Vue.js : @click="save()"
+          -->
+          <button type="button" class="btn btn-primary" (click)="save()">
+            @if (formMode === 'create') {
+              <i class="bi bi-plus-circle me-1"></i>Créer
+            } @else {
+              <i class="bi bi-check-circle me-1"></i>Enregistrer
+            }
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,35 @@
+<!--
+  Template racine de l'application.
+
+  ➜ Vue.js : équivalent du <template> dans App.vue
+     <template>
+       <div class="d-flex">
+         <Sidebar />
+         <main>
+           <router-view />
+         </main>
+       </div>
+     </template>
+
+  LAYOUT :
+  ┌──────────┬─────────────────────────────┐
+  │          │                             │
+  │ Sidebar  │     <router-outlet />       │
+  │          │     (contenu de la page)    │
+  │          │                             │
+  └──────────┴─────────────────────────────┘
+
+  <router-outlet> est le point d'insertion où Angular affiche
+  le composant correspondant à la route active.
+  ➜ Vue.js : c'est exactement <router-view />
+-->
+
+<div class="d-flex">
+  <!-- Sidebar : notre composant de navigation -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Contenu principal : le composant de la route active s'affiche ici -->
+  <main class="flex-grow-1 bg-light">
+    <router-outlet />
+  </main>
+</div>

@@ -1,0 +1,21 @@
+/*
+ * Styles globaux de l'application.
+ *
+ * ➜ Vue.js : équivalent de src/assets/main.css ou du style global dans App.vue sans scoped
+ * ➜ Spring Boot : pas d'équivalent (c'est du CSS !)
+ *
+ * Ce fichier est chargé globalement via angular.json (comme un import CSS dans main.js en Vue.js).
+ * Bootstrap est déjà chargé globalement via angular.json, donc on n'a pas besoin de l'importer ici.
+ */
+
+/* Reset de base pour que le layout pleine hauteur fonctionne */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* S'assurer que le contenu principal prend toute la hauteur */
+main {
+  min-height: 100vh;
+}

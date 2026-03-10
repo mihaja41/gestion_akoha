@@ -1,0 +1,16 @@
+/*
+ * Styles pour la page Description Race.
+ *
+ * On utilise principalement Bootstrap, donc peu de CSS custom nécessaire.
+ * Ces styles ajoutent juste quelques touches visuelles supplémentaires.
+ */
+
+/* Animation subtile au survol des lignes du tableau */
+.table-hover tbody tr:hover {
+  transition: background-color 0.2s ease;
+}
+
+/* Style des boutons d'action dans le tableau */
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+}

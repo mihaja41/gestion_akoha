@@ -1,0 +1,66 @@
+<!--
+  Template du Sidebar.
+
+  ➜ Vue.js : ce serait le contenu de <template> dans Sidebar.vue
+  ➜ Angular : le template est dans un fichier .html séparé (bonne pratique pour les gros templates)
+
+  CONCEPTS UTILISÉS :
+  - *ngFor remplacé par @for : boucle sur les éléments (comme v-for en Vue.js)
+  - routerLink : navigation (comme <router-link :to="..."> en Vue.js)
+  - routerLinkActive : ajoute une classe CSS quand la route est active (comme router-link-active en Vue.js)
+-->
+
+<nav class="sidebar d-flex flex-column p-3">
+
+  <!-- Logo / Titre de l'application -->
+  <div class="sidebar-header mb-4">
+    <h5 class="text-white mb-0">
+      <i class="bi bi-egg-fried me-2"></i>
+      Fiompiana Akoho
+    </h5>
+    <small class="text-white-50">Gestion avicole</small>
+  </div>
+
+  <hr class="text-white-50">
+
+  <!-- Menu de navigation -->
+  <!--
+    @for : la nouvelle syntaxe Angular 17+ pour les boucles (remplace *ngFor)
+    ➜ Vue.js : v-for="item in menuItems" :key="item.route"
+    ➜ Angular : @for (item of menuItems; track item.route)
+
+    'track' est obligatoire en Angular 17+ : il aide Angular à optimiser le rendu
+    (comme :key en Vue.js)
+  -->
+  <ul class="nav flex-column">
+    @for (item of menuItems; track item.route) {
+      <li class="nav-item">
+        <a class="nav-link sidebar-link"
+           [routerLink]="item.route"
+           routerLinkActive="active">
+          <!--
+            [routerLink]="item.route"
+            ➜ Vue.js : :to="item.route" (binding dynamique)
+            Les crochets [] en Angular = les deux-points : en Vue.js (binding de propriété)
+
+            routerLinkActive="active"
+            ➜ Ajoute la classe 'active' quand cette route est la route courante
+            ➜ Vue.js : c'est automatique avec <router-link> (classe router-link-active)
+          -->
+          <i class="bi {{ item.icon }} me-2"></i>
+          {{ item.label }}
+        </a>
+      </li>
+    }
+  </ul>
+
+  <!-- Pied du sidebar -->
+  <div class="mt-auto">
+    <hr class="text-white-50">
+    <small class="text-white-50">
+      <i class="bi bi-info-circle me-1"></i>
+      v1.0.0
+    </small>
+  </div>
+
+</nav>
