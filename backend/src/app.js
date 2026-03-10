@@ -8,6 +8,8 @@
 
 const express = require('express');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 
 const descriptionRaceRoutes = require('./routes/descriptionRace.routes');
 const lotAkohoRoutes = require('./routes/lotAkoho.routes');
@@ -35,6 +37,15 @@ app.use('/api/races', raceRoutes);
 app.use('/api/lots-atody', lotAtodyRoutes);
 app.use('/api/naissances-oeuf', naissanceOeufRoutes);
 app.use('/api/akoho-maty', akohoMatyRoutes);
+
+// ── Swagger UI ────────────────────────────────────────────────────
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Endpoint pour récupérer le JSON brut de la spec OpenAPI
+app.get('/api/docs.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+});
 
 // Route de test / health check
 app.get('/api/health', (req, res) => {

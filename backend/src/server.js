@@ -17,5 +17,5 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
-    console.log(`📡 API DescriptionRace : http://localhost:${PORT}/api/description-races`);
+    console.log(`📡 API doc : http://localhost:${PORT}/api/docs`);
 });
