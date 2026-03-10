@@ -1,5 +1,6 @@
 const lotAtodyRepository = require('../repositories/lotAtody.repository');
 const naissanceOeufService = require('./naissanceOeuf.service');
+const atodyLamokanyService = require('./atodyLamokany.service');
 
 async function getAll() {
     return await lotAtodyRepository.findAll();
@@ -47,7 +48,8 @@ async function deleteById(id) {
 }
 
 /**
- * Calculer le nombre d'oeufs restants (total oeufs - naissances) pour un lot de poulets à une date donnée.
+ * Calculer le nombre d'oeufs restants pour un lot de poulets à une date donnée.
+ * Formule : total oeufs - naissances (poussins éclos) - oeufs pourris (lamokany)
  */
 async function getNombreOeufsByLotAkohoIdAndDate(idLotAkoho, date) {
     const lotsAtody = await lotAtodyRepository.findByLotAkohoIdAndDate(idLotAkoho, date);
@@ -59,7 +61,9 @@ async function getNombreOeufsByLotAkohoIdAndDate(idLotAkoho, date) {
     }
     if (lotAtodyIds.length > 0) {
         const totalNaissances = await naissanceOeufService.getNombreNaissanceByLotAtodyIdsAndDate(lotAtodyIds, date);
+        const totalLamokany = await atodyLamokanyService.getNombreLamokanyByLotAtodyIdsAndDate(lotAtodyIds, date);
         totalOeufs -= totalNaissances;
+        totalOeufs -= totalLamokany;
     }
     return Math.max(0, totalOeufs);
 }

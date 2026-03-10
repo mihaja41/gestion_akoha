@@ -154,6 +154,27 @@ const options = {
                     },
                 },
 
+                // ─── AtodyLamokany ────────────────────────────────────────
+                AtodyLamokany: {
+                    type: 'object',
+                    required: ['date_lamokany', 'nombre', 'Id_lot_atody'],
+                    properties: {
+                        Id_atody_lamokany: { type: 'integer', example: 1 },
+                        date_lamokany: { type: 'string', format: 'date', example: '2025-03-05', description: 'Date de constatation des œufs pourris' },
+                        nombre: { type: 'integer', example: 10, description: 'Nombre d\'œufs pourris' },
+                        Id_lot_atody: { type: 'integer', example: 1 },
+                    },
+                },
+                AtodyLamokanyInput: {
+                    type: 'object',
+                    required: ['date_lamokany', 'nombre', 'Id_lot_atody'],
+                    properties: {
+                        date_lamokany: { type: 'string', format: 'date', example: '2025-03-05' },
+                        nombre: { type: 'integer', example: 10 },
+                        Id_lot_atody: { type: 'integer', example: 1 },
+                    },
+                },
+
                 // ─── Réponses génériques ─────────────────────────────────
                 Error: {
                     type: 'object',

@@ -62,6 +62,16 @@ CREATE TABLE lot_atody(
 );
 GO
 
+CREATE TABLE atody_lamokany(
+   Id_atody_lamokany INT IDENTITY,
+   date_lamokany DATE,
+   nombre INT,
+   Id_lot_atody INT NOT NULL,
+   PRIMARY KEY(Id_atody_lamokany),
+   FOREIGN KEY(Id_lot_atody) REFERENCES lot_atody(Id_lot_atody)
+);
+GO
+
 CREATE TABLE naissance_oeuf(
    Id_naissance_oeuf INT IDENTITY,
    nombre_poussin VARCHAR(50),

@@ -17,6 +17,7 @@ const raceRoutes = require('./routes/race.routes');
 const lotAtodyRoutes = require('./routes/lotAtody.routes');
 const naissanceOeufRoutes = require('./routes/naissanceOeuf.routes');
 const akohoMatyRoutes = require('./routes/akohoMaty.routes');
+const atodyLamokanyRoutes = require('./routes/atodyLamokany.routes');
 
 const errorHandler = require('./middlewares/errorHandler');
 
@@ -37,6 +38,7 @@ app.use('/api/races', raceRoutes);
 app.use('/api/lots-atody', lotAtodyRoutes);
 app.use('/api/naissances-oeuf', naissanceOeufRoutes);
 app.use('/api/akoho-maty', akohoMatyRoutes);
+app.use('/api/atody-lamokany', atodyLamokanyRoutes);
 
 // ── Swagger UI ────────────────────────────────────────────────────
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
