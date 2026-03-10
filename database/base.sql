@@ -11,6 +11,7 @@ GO
 -- Drop tables si elles existent déjà (ordre inverse des FK)
 IF OBJECT_ID('akoho_maty', 'U') IS NOT NULL DROP TABLE akoho_maty;
 IF OBJECT_ID('naissance_oeuf', 'U') IS NOT NULL DROP TABLE naissance_oeuf;
+IF_OBJECT_ID('atody_lamokany', 'U') IS NOT NULL DROP TABLE atody_lamokany;
 IF OBJECT_ID('lot_atody', 'U') IS NOT NULL DROP TABLE lot_atody;
 IF OBJECT_ID('lot_akoho', 'U') IS NOT NULL DROP TABLE lot_akoho;
 IF OBJECT_ID('description_race', 'U') IS NOT NULL DROP TABLE description_race;
