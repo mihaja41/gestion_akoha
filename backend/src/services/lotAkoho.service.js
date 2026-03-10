@@ -184,4 +184,8 @@ async function getSituationByIdAndDate(id, date) {
     };
 }
 
-module.exports = { getAll, getById, create, update, deleteById , getSituationByIdAndDate };
+async function getLotAkohoBeforeDate(date) {
+    return await lotAkohoRepository.getLotAkohoBeforeDate(date);
+}
+
+module.exports = { getAll, getById, create, update, deleteById, getSituationByIdAndDate, getLotAkohoBeforeDate };

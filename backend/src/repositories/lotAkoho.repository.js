@@ -59,4 +59,12 @@ async function deleteById(id) {
     return result.rowsAffected[0] > 0;
 }
 
-module.exports = { findAll, findById, create, update, deleteById };
+async function getLotAkohoBeforeDate(date) {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input('date', sql.Date, date)
+        .query('SELECT * FROM lot_akoho WHERE date_entree <= @date');
+    return result.recordset;
+}
+
+module.exports = { findAll, findById, create, update, deleteById , getLotAkohoBeforeDate};
