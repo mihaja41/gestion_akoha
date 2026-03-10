@@ -49,4 +49,11 @@ async function getAkohoMatyByIdLotAkohoAndDate(idLotAkoho, date) {
     return await akohoMatyRepository.getAkohoMatyByIdLotAkohoAndDate(idLotAkoho, date);
 }
 
-module.exports = { getAll, getById, create, update, deleteById, getAkohoMatyByIdLotAkohoAndDate };
+/**
+ * Retourner les détails des morts (date_mort, nombre) pour un lot.
+ */
+async function getDetailsByLotAkohoIdAndDate(idLotAkoho, date) {
+    return await akohoMatyRepository.findDetailsByLotAkohoIdAndDate(idLotAkoho, date);
+}
+
+module.exports = { getAll, getById, create, update, deleteById, getAkohoMatyByIdLotAkohoAndDate, getDetailsByLotAkohoIdAndDate };

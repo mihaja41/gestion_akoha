@@ -50,6 +50,39 @@ async function deleteById(id) {
     return true;
 }
 
+/**
+ * Calcule les grammes de nourriture consommés par UN poulet
+ * depuis la semaine d'entrée pendant un nombre de jours donné.
+ *
+ * @param {number} ageEntreeSemaine - Âge du poulet à l'entrée (en semaines)
+ * @param {number} joursPresence    - Nombre de jours de présence
+ * @param {object} descMap           - Map semaine => { lanja_sakafo }
+ * @returns {number} grammes consommés par 1 poulet
+ */
+function calculerNourritureParPoulet(ageEntreeSemaine, joursPresence, descMap) {
+    if (joursPresence <= 0) return 0;
+
+    const ageFinalExact = ageEntreeSemaine + (joursPresence / 7);
+    const ageFinalEntier = Math.floor(ageFinalExact);
+    const fractionFinale = ageFinalExact - ageFinalEntier;
+
+    let totalGrammes = 0;
+
+    // Semaines complètes depuis l'entrée
+    for (let w = ageEntreeSemaine; w < ageFinalEntier; w++) {
+        if (descMap[w]) {
+            totalGrammes += descMap[w].lanja_sakafo;
+        }
+    }
+
+    // Fraction de la semaine en cours
+    if (fractionFinale > 0 && descMap[ageFinalEntier]) {
+        totalGrammes += descMap[ageFinalEntier].lanja_sakafo * fractionFinale;
+    }
+
+    return totalGrammes;
+}
+
 async function getSituationByIdAndDate(id, date) {
     // 1. Récupérer les données de base
     const lotAkoho = await getById(id);
@@ -92,40 +125,43 @@ async function getSituationByIdAndDate(id, date) {
         poidsMoyen += descMap[ageActuelSemaineEntier].variation_poids * fractionSemaineCourante;
     }
 
-    // 5. Valeur de la nourriture consommée depuis l'entrée (pour les poulets initiaux sans mort)
-    //    On ne compte que depuis la semaine d'entrée (on ne payait pas avant)
-    let totalNourritureGrammes = 0;
-    for (let w = ageEntreeSemaine; w < ageActuelSemaineEntier; w++) {
-        if (descMap[w]) {
-            totalNourritureGrammes += descMap[w].lanja_sakafo;
-        }
-    }
-    // Fraction de la semaine en cours
-    if (fractionSemaineCourante > 0 && descMap[ageActuelSemaineEntier]) {
-        totalNourritureGrammes += descMap[ageActuelSemaineEntier].lanja_sakafo * fractionSemaineCourante;
-    }
-    // Valeur = grammes par poulet × nombre initial × prix par gramme
-    const valeurNourritureConsommee = totalNourritureGrammes * lotAkoho.nombre * race.prix_sakafo;
+    // 5. Valeur de la nourriture consommée — calcul par tranche de vie
+    //    Chaque groupe de poulets morts a consommé de date_entree → date_mort
+    //    Les survivants ont consommé de date_entree → date demandée
+    const detailsMorts = await akohoMatyService.getDetailsByLotAkohoIdAndDate(id, date);
 
-    // 6. Poulets morts
-    const nombreMorts = await akohoMatyService.getAkohoMatyByIdLotAkohoAndDate(id, date);
+    let nombreMorts = 0;
+    let valeurNourritureConsommee = 0;
+
+    // 5a. Pour chaque événement de mort : nourriture consommée par ces poulets
+    for (const mort of detailsMorts) {
+        const dateMortObj = new Date(mort.date_mort);
+        const joursAvantMort = Math.floor((dateMortObj - dateEntreeObj) / (24 * 60 * 60 * 1000));
+        const grammesParPouletMort = calculerNourritureParPoulet(ageEntreeSemaine, joursAvantMort, descMap);
+        valeurNourritureConsommee += grammesParPouletMort * mort.nombre * race.prix_sakafo;
+        nombreMorts += mort.nombre;
+    }
+
+    // 5b. Pour les poulets encore vivants : nourriture de date_entree → date demandée
     const nombreApresMort = lotAkoho.nombre - nombreMorts;
+    const grammesParPouletVivant = calculerNourritureParPoulet(ageEntreeSemaine, jourDepuisEntree, descMap);
+    valeurNourritureConsommee += grammesParPouletVivant * nombreApresMort * race.prix_sakafo;
 
-    // 7. Prix de vente (poids × prix de vente par gramme)
+    // 6. Prix de vente (poids × prix de vente par gramme)
     const poidsTotalSansMort = poidsMoyen * lotAkoho.nombre;
     const prixVenteSansMort = poidsTotalSansMort * race.prix_vente;
 
     const poidsTotalAvecMort = poidsMoyen * nombreApresMort;
     const prixVenteAvecMort = poidsTotalAvecMort * race.prix_vente;
 
-    // 8. Oeufs (total oeufs − oeufs déjà nés/éclos)
+    // 7. Oeufs (total oeufs − oeufs déjà nés/éclos)
     const nombreOeufs = await lotAtodyService.getNombreOeufsByLotAkohoIdAndDate(id, date);
     const valeurOeufs = nombreOeufs * race.prix_vente_atody;
 
-    // 9. Prix d'achat total
+    // 8. Prix d'achat total
     const prixAchatTotal = lotAkoho.prix_achat * lotAkoho.nombre;
 
-    // 10. Bénéfices
+    // 9. Bénéfices
     const beneficeSansMort = prixVenteSansMort + valeurOeufs - prixAchatTotal - valeurNourritureConsommee;
     const beneficeAvecMort = prixVenteAvecMort + valeurOeufs - prixAchatTotal - valeurNourritureConsommee;
 

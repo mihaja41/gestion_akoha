@@ -68,4 +68,20 @@ async function getAkohoMatyByIdLotAkohoAndDate(idLotAkoho, date) {
     return result;
 }
 
-module.exports = { findAll, findById, create, update, deleteById, getAkohoMatyByIdLotAkohoAndDate };
+/**
+ * Retourner les détails des morts (date_mort, nombre) pour un lot de poulets jusqu'à une date.
+ */
+async function findDetailsByLotAkohoIdAndDate(idLotAkoho, date) {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input('idLotAkoho', sql.Int, idLotAkoho)
+        .input('date', sql.Date, date)
+        .query(`
+            SELECT date_mort, nombre FROM akoho_maty
+            WHERE Id_lot_akoho = @idLotAkoho AND date_mort <= @date
+            ORDER BY date_mort ASC
+        `);
+    return result.recordset;
+}
+
+module.exports = { findAll, findById, create, update, deleteById, getAkohoMatyByIdLotAkohoAndDate, findDetailsByLotAkohoIdAndDate };
