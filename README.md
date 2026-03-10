@@ -92,7 +92,7 @@ L'endpoint `GET /api/situation-lots?date=2026-03-10` retourne pour **chaque lot*
 | `beneficeSansMort` | `prixVenteSansMort + valeurOeufs − prixAchatTotal − valeurNourriture` |
 | `beneficeAvecMort` | `prixVenteAvecMort + valeurOeufs − prixAchatTotal − valeurNourriture` |
 
-> Pour l'explication détaillée des règles de gestion, voir [doc/situation-lot-akoho.md](doc/situation-lot-akoho.md).
+> Pour l'explication détaillée des règles de gestion, voir [backend/doc/situation-lot-akoho.md](backend/doc/situation-lot-akoho.md).
 
 ## Architecture
 
@@ -114,7 +114,7 @@ backend/src/
 
 ## Documentation complémentaire
 
-- [doc/init-project.md](doc/init-project.md) — Initialisation du projet (Docker, base de données, premier lancement)
-- [doc/reset-base.md](doc/reset-base.md) — Réinitialiser la base de données
-- [doc/situation-lot-akoho.md](doc/situation-lot-akoho.md) — Règles de gestion du calcul de situation
-- [doc/situation-lots.md](doc/situation-lots.md) -> EndPoint pour obtenir la situation de tous les lots de poulets
+- [backend/doc/init-project.md](doc/init-project.md) — Initialisation du projet (Docker, base de données, premier lancement)
+- [backend/doc/reset-base.md](doc/reset-base.md) — Réinitialiser la base de données
+- [backend/doc/situation-lot-akoho.md](doc/situation-lot-akoho.md) — Règles de gestion du calcul de situation
+- [backend/doc/situation-lots.md](doc/situation-lots.md) -> EndPoint pour obtenir la situation de tous les lots de poulets
