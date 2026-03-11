@@ -36,9 +36,9 @@ export class SidebarComponent {
    * ➜ Angular : on déclare les données comme propriétés de la classe
    */
   menuItems = [
+    { label: 'Races', icon: 'bi-tags', route: '/races' },
     { label: 'Description Races', icon: 'bi-card-list', route: '/description-races' },
     // ── Ajoute tes prochaines pages ici ──
     // { label: 'Lots Akoho', icon: 'bi-egg', route: '/lots-akoho' },
-    // { label: 'Races', icon: 'bi-tags', route: '/races' },
   ];
 }

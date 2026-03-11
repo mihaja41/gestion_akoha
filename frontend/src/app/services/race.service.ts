@@ -1,8 +1,7 @@
 /**
  * Service pour les appels API de Race.
  *
- * On n'a besoin ici que de getAll() pour alimenter le <select> du formulaire.
- * Tu pourras ajouter les autres méthodes CRUD plus tard quand tu créeras la page Race.
+ * Gère toutes les opérations CRUD sur la table Race.
  */
 
 import { Injectable, inject } from '@angular/core';
@@ -19,8 +18,28 @@ export class RaceService {
   private http = inject(HttpClient);
   private baseUrl = `${environment.apiUrl}/races`;
 
-  /** Récupérer toutes les races (pour le select) */
+  /** Récupérer toutes les races */
   getAll(): Observable<Race[]> {
     return this.http.get<Race[]>(this.baseUrl);
+  }
+
+  /** Récupérer une race par son ID */
+  getById(id: number): Observable<Race> {
+    return this.http.get<Race>(`${this.baseUrl}/${id}`);
+  }
+
+  /** Créer une nouvelle race */
+  create(race: Race): Observable<Race> {
+    return this.http.post<Race>(this.baseUrl, race);
+  }
+
+  /** Mettre à jour une race existante */
+  update(id: number, race: Race): Observable<Race> {
+    return this.http.put<Race>(`${this.baseUrl}/${id}`, race);
+  }
+
+  /** Supprimer une race par son ID */
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

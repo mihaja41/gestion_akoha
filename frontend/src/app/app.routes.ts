@@ -21,7 +21,7 @@ export const routes: Routes = [
   // Redirection de la page d'accueil vers description-races
   {
     path: '',
-    redirectTo: 'description-races',
+    redirectTo: 'races',
     pathMatch: 'full'  // ← 'full' signifie que le chemin doit correspondre EXACTEMENT à ''
   },
 
@@ -30,8 +30,13 @@ export const routes: Routes = [
     path: 'description-races',
     loadComponent: () =>
       import('./pages/description-race/description-race').then(m => m.DescriptionRaceComponent)
-    // ↑ Lazy loading : le composant est chargé uniquement quand on navigue vers cette route
-    // ➜ Vue.js : component: () => import('./views/DescriptionRace.vue')
+  },
+
+  // Route pour la page Races
+  {
+    path: 'races',
+    loadComponent: () =>
+      import('./pages/race/race').then(m => m.RaceComponent)
   },
 
   // ── Ajoute tes prochaines routes ici ──
