@@ -4,18 +4,18 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h2 class="mb-1">
-        <i class="bi bi-shop me-2"></i>
-        Lots de Poulets
+        <i class="bi bi-heartbreak me-2"></i>
+        Poulets Morts
       </h2>
       <p class="text-muted mb-0">
-        Gestion des lots de poulets (Akoho)
+        Enregistrement des mortalités par lot de poulets
       </p>
     </div>
 
     <button class="btn btn-primary"
             (click)="prepareCreate()"
             data-bs-toggle="modal"
-            data-bs-target="#lotAkohoFormModal">
+            data-bs-target="#akohoMatyFormModal">
       <i class="bi bi-plus-circle me-1"></i>
       Nouveau
     </button>
@@ -57,30 +57,24 @@
             <thead class="table-dark">
               <tr>
                 <th scope="col">#ID</th>
-                <th scope="col">Numéro</th>
-                <th scope="col">Date d'entrée</th>
+                <th scope="col">Date de mort</th>
                 <th scope="col">Nombre</th>
-                <th scope="col">Âge (semaines)</th>
-                <th scope="col">Prix d'achat (Ar)</th>
-                <th scope="col">Race</th>
+                <th scope="col">Lot de poulets</th>
                 <th scope="col" class="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
-              @for (item of lotsAkoho; track item.Id_lot_akoho) {
+              @for (item of items; track item.Id_akoho_maty) {
                 <tr>
-                  <td>{{ item.Id_lot_akoho }}</td>
-                  <td>{{ item.numero }}</td>
-                  <td>{{ formatDate(item.date_entree) }}</td>
+                  <td>{{ item.Id_akoho_maty }}</td>
+                  <td>{{ formatDate(item.date_mort) }}</td>
                   <td>{{ item.nombre }}</td>
-                  <td>{{ item.age }}</td>
-                  <td>{{ item.prix_achat }}</td>
-                  <td>{{ getRaceName(item.Id_race) }}</td>
+                  <td>{{ getLotNumero(item.Id_lot_akoho) }}</td>
                   <td class="text-center">
                     <button class="btn btn-sm btn-outline-warning me-1"
                             (click)="prepareEdit(item)"
                             data-bs-toggle="modal"
-                            data-bs-target="#lotAkohoFormModal"
+                            data-bs-target="#akohoMatyFormModal"
                             title="Modifier">
                       <i class="bi bi-pencil-square"></i>
                     </button>
@@ -93,11 +87,11 @@
                 </tr>
               }
 
-              @if (lotsAkoho.length === 0) {
+              @if (items.length === 0) {
                 <tr>
-                  <td colspan="8" class="text-center text-muted py-4">
+                  <td colspan="5" class="text-center text-muted py-4">
                     <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                    Aucun lot de poulets trouvé.
+                    Aucun enregistrement de mortalité trouvé.
                   </td>
                 </tr>
               }
@@ -109,23 +103,23 @@
       <div class="card-footer text-muted">
         <small>
           <i class="bi bi-database me-1"></i>
-          {{ lotsAkoho.length }} enregistrement(s)
+          {{ items.length }} enregistrement(s)
         </small>
       </div>
     </div>
   }
 
-  <!-- ═══════════ MODAL FORMULAIRE (Créer / Modifier) ═══════════ -->
-  <div class="modal fade" id="lotAkohoFormModal" tabindex="-1" aria-labelledby="lotAkohoFormModalLabel" aria-hidden="true">
+  <!-- ═══════════ MODAL FORMULAIRE ═══════════ -->
+  <div class="modal fade" id="akohoMatyFormModal" tabindex="-1" aria-labelledby="akohoMatyFormModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
 
         <div class="modal-header">
-          <h5 class="modal-title" id="lotAkohoFormModalLabel">
+          <h5 class="modal-title" id="akohoMatyFormModalLabel">
             @if (formMode === 'create') {
-              <i class="bi bi-plus-circle me-2"></i>Nouveau Lot de Poulets
+              <i class="bi bi-plus-circle me-2"></i>Enregistrer une mortalité
             } @else {
-              <i class="bi bi-pencil-square me-2"></i>Modifier Lot de Poulets
+              <i class="bi bi-pencil-square me-2"></i>Modifier l'enregistrement
             }
           </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
@@ -134,72 +128,40 @@
         <div class="modal-body">
           <form>
             <div class="mb-3">
-              <label for="numero" class="form-label">Numéro</label>
+              <label for="numeroLot" class="form-label">Numéro du lot de poulets</label>
               <input type="number"
                      class="form-control"
-                     id="numero"
-                     name="numero"
-                     [(ngModel)]="formData.numero"
+                     id="numeroLot"
+                     name="numeroLot"
+                     [(ngModel)]="formNumeroLot"
                      placeholder="Ex: 101"
                      required>
+              @if (lotLookupError) {
+                <div class="text-danger mt-1">
+                  <small><i class="bi bi-exclamation-circle me-1"></i>{{ lotLookupError }}</small>
+                </div>
+              }
             </div>
 
             <div class="mb-3">
-              <label for="dateEntree" class="form-label">Date d'entrée</label>
+              <label for="dateMort" class="form-label">Date de mort</label>
               <input type="date"
                      class="form-control"
-                     id="dateEntree"
-                     name="dateEntree"
-                     [(ngModel)]="formData.date_entree"
+                     id="dateMort"
+                     name="dateMort"
+                     [(ngModel)]="formData.date_mort"
                      required>
             </div>
 
             <div class="mb-3">
-              <label for="nombre" class="form-label">Nombre</label>
+              <label for="nombre" class="form-label">Nombre de poulets morts</label>
               <input type="number"
                      class="form-control"
                      id="nombre"
                      name="nombre"
                      [(ngModel)]="formData.nombre"
-                     placeholder="Ex: 100"
+                     placeholder="Ex: 5"
                      required>
-            </div>
-
-            <div class="mb-3">
-              <label for="age" class="form-label">Âge (semaines)</label>
-              <input type="number"
-                     class="form-control"
-                     id="age"
-                     name="age"
-                     [(ngModel)]="formData.age"
-                     placeholder="Ex: 0"
-                     required>
-            </div>
-
-            <div class="mb-3">
-              <label for="prixAchat" class="form-label">Prix d'achat (Ar)</label>
-              <input type="number"
-                     class="form-control"
-                     id="prixAchat"
-                     name="prixAchat"
-                     [(ngModel)]="formData.prix_achat"
-                     placeholder="Ex: 800000"
-                     step="0.01"
-                     required>
-            </div>
-
-            <div class="mb-3">
-              <label for="idRace" class="form-label">Race</label>
-              <select class="form-select"
-                      id="idRace"
-                      name="idRace"
-                      [(ngModel)]="formData.Id_race"
-                      required>
-                <option [ngValue]="0" disabled>-- Choisir une race --</option>
-                @for (race of races; track race.Id_race) {
-                  <option [ngValue]="race.Id_race">{{ race.nom }}</option>
-                }
-              </select>
             </div>
           </form>
         </div>

@@ -48,7 +48,7 @@ export class RaceComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        this.errorMessage = 'Erreur lors du chargement des races.';
+        this.errorMessage = err.error?.message || 'Erreur lors du chargement des races.';
         this.loading = false;
         console.error('Erreur chargement:', err);
       }
@@ -78,7 +78,7 @@ export class RaceComponent implements OnInit {
           this.closeModal();
         },
         error: (err) => {
-          this.errorMessage = 'Erreur lors de la création.';
+          this.errorMessage = err.error?.message || 'Erreur lors de la création.';
           console.error('Erreur création:', err);
         }
       });
@@ -90,7 +90,7 @@ export class RaceComponent implements OnInit {
           this.closeModal();
         },
         error: (err) => {
-          this.errorMessage = 'Erreur lors de la modification.';
+          this.errorMessage = err.error?.message || 'Erreur lors de la modification.';
           console.error('Erreur modification:', err);
         }
       });
@@ -110,7 +110,7 @@ export class RaceComponent implements OnInit {
         this.loadAll();
       },
       error: (err) => {
-        this.errorMessage = 'Erreur lors de la suppression.';
+        this.errorMessage = err.error?.message || 'Erreur lors de la suppression.';
         console.error('Erreur suppression:', err);
       }
     });

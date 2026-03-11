@@ -18,6 +18,16 @@ async function getById(id) {
     return item;
 }
 
+async function getByNumero(numero) {
+    const item = await lotAkohoRepository.findByNumero(numero);
+    if (!item) {
+        const error = new Error(`LotAkoho avec le numéro ${numero} introuvable`);
+        error.status = 404;
+        throw error;
+    }
+    return item;
+}
+
 async function create(data) {
     if (data.numero == null || data.date_entree == null || data.nombre == null ||
         data.age == null || data.prix_achat == null || data.Id_race == null) {
@@ -188,4 +198,4 @@ async function getLotAkohoBeforeDate(date) {
     return await lotAkohoRepository.getLotAkohoBeforeDate(date);
 }
 
-module.exports = { getAll, getById, create, update, deleteById, getSituationByIdAndDate, getLotAkohoBeforeDate };
+module.exports = { getAll, getById, getByNumero, create, update, deleteById, getSituationByIdAndDate, getLotAkohoBeforeDate };

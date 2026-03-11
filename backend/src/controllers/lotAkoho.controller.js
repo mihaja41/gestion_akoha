@@ -12,6 +12,12 @@ async function getById(req, res, next) {
     } catch (error) { next(error); }
 }
 
+async function getByNumero(req, res, next) {
+    try {
+        res.json(await lotAkohoService.getByNumero(parseInt(req.params.numero)));
+    } catch (error) { next(error); }
+}
+
 async function create(req, res, next) {
     try {
         res.status(201).json(await lotAkohoService.create(req.body));
@@ -44,4 +50,4 @@ async function getSituation(req, res, next) {
     } catch (error) { next(error); }
 }
 
-module.exports = { getAll, getById, create, update, deleteById, getSituation };
+module.exports = { getAll, getById, getByNumero, create, update, deleteById, getSituation };

@@ -22,6 +22,11 @@ export class LotAkohoService {
     return this.http.get<LotAkoho>(`${this.baseUrl}/${id}`);
   }
 
+  /** Récupérer un lot par son numéro */
+  getByNumero(numero: number): Observable<LotAkoho> {
+    return this.http.get<LotAkoho>(`${this.baseUrl}/numero/${numero}`);
+  }
+
   /** Créer un nouveau lot de poulets */
   create(lot: LotAkoho): Observable<LotAkoho> {
     return this.http.post<LotAkoho>(this.baseUrl, lot);

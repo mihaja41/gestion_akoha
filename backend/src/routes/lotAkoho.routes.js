@@ -136,6 +136,7 @@ router.post('/', lotAkohoController.create);
  *       500:
  *         description: Erreur serveur
  */
+router.get('/numero/:numero', lotAkohoController.getByNumero);
 router.get('/:id/situation', lotAkohoController.getSituation);
 
 /**

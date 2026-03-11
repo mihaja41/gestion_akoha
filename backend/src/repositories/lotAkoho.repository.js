@@ -67,4 +67,12 @@ async function getLotAkohoBeforeDate(date) {
     return result.recordset;
 }
 
-module.exports = { findAll, findById, create, update, deleteById , getLotAkohoBeforeDate};
+async function findByNumero(numero) {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input('numero', sql.Int, numero)
+        .query('SELECT * FROM lot_akoho WHERE numero = @numero');
+    return result.recordset[0] || null;
+}
+
+module.exports = { findAll, findById, findByNumero, create, update, deleteById, getLotAkohoBeforeDate };

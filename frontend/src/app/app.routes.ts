@@ -45,4 +45,18 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/lot-akoho/lot-akoho').then(m => m.LotAkohoComponent)
   },
+
+  // Route pour la page Poulets Morts
+  {
+    path: 'akoho-maty',
+    loadComponent: () =>
+      import('./pages/akoho-maty/akoho-maty').then(m => m.AkohoMatyComponent)
+  },
+
+  // Route pour la page Lots d'Œufs
+  {
+    path: 'lots-atody',
+    loadComponent: () =>
+      import('./pages/lot-atody/lot-atody').then(m => m.LotAtodyComponent)
+  },
 ];

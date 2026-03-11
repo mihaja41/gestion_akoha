@@ -126,7 +126,7 @@ export class DescriptionRaceComponent implements OnInit {
       },
       // ➜ error : appelé si la requête échoue (comme .catch())
       error: (err) => {
-        this.errorMessage = 'Erreur lors du chargement des données.';
+        this.errorMessage = err.error?.message || 'Erreur lors du chargement des données.';
         this.loading = false;
         console.error('Erreur chargement:', err);
       }
@@ -202,7 +202,7 @@ export class DescriptionRaceComponent implements OnInit {
           this.closeModal();             // Fermer le modal
         },
         error: (err) => {
-          this.errorMessage = 'Erreur lors de la création.';
+          this.errorMessage = err.error?.message || 'Erreur lors de la création.';
           console.error('Erreur création:', err);
         }
       });
@@ -214,7 +214,7 @@ export class DescriptionRaceComponent implements OnInit {
           this.closeModal();
         },
         error: (err) => {
-          this.errorMessage = 'Erreur lors de la modification.';
+          this.errorMessage = err.error?.message || 'Erreur lors de la modification.';
           console.error('Erreur modification:', err);
         }
       });
@@ -238,7 +238,7 @@ export class DescriptionRaceComponent implements OnInit {
         this.loadAll();
       },
       error: (err) => {
-        this.errorMessage = 'Erreur lors de la suppression.';
+        this.errorMessage = err.error?.message || 'Erreur lors de la suppression.';
         console.error('Erreur suppression:', err);
       }
     });
