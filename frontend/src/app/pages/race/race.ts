@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RaceService } from '../../services/race.service';
@@ -14,42 +14,29 @@ export class RaceComponent implements OnInit {
 
   private raceService = inject(RaceService);
 
-  /** Liste de toutes les races */
-  races: Race[] = [];
-
-  /** Objet formulaire pour la création/modification */
+  races = signal<Race[]>([]);
   formData: Race = this.getEmptyForm();
-
-  /** Mode du formulaire : 'create' ou 'edit' */
   formMode: 'create' | 'edit' = 'create';
-
-  /** Indicateur de chargement */
-  loading = false;
-
-  /** Message d'erreur à afficher */
-  errorMessage = '';
-
-  /** Message de succès à afficher */
-  successMessage = '';
+  loading = signal(false);
+  errorMessage = signal('');
+  successMessage = signal('');
 
   ngOnInit(): void {
     this.loadAll();
   }
 
-  // ── Méthodes CRUD ──────────────────────────────────────────────
-
   loadAll(): void {
-    this.loading = true;
-    this.errorMessage = '';
+    this.loading.set(true);
+    this.errorMessage.set('');
 
     this.raceService.getAll().subscribe({
       next: (data) => {
-        this.races = data;
-        this.loading = false;
+        this.races.set(data);
+        this.loading.set(false);
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Erreur lors du chargement des races.';
-        this.loading = false;
+        this.errorMessage.set(err.error?.message || 'Erreur lors du chargement des races.');
+        this.loading.set(false);
         console.error('Erreur chargement:', err);
       }
     });
@@ -73,24 +60,24 @@ export class RaceComponent implements OnInit {
     if (this.formMode === 'create') {
       this.raceService.create(this.formData).subscribe({
         next: () => {
-          this.successMessage = 'Race créée avec succès !';
+          this.successMessage.set('Race créée avec succès !');
           this.loadAll();
           this.closeModal();
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'Erreur lors de la création.';
+          this.errorMessage.set(err.error?.message || 'Erreur lors de la création.');
           console.error('Erreur création:', err);
         }
       });
     } else {
       this.raceService.update(this.formData.Id_race!, this.formData).subscribe({
         next: () => {
-          this.successMessage = 'Race modifiée avec succès !';
+          this.successMessage.set('Race modifiée avec succès !');
           this.loadAll();
           this.closeModal();
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'Erreur lors de la modification.';
+          this.errorMessage.set(err.error?.message || 'Erreur lors de la modification.');
           console.error('Erreur modification:', err);
         }
       });
@@ -106,17 +93,15 @@ export class RaceComponent implements OnInit {
 
     this.raceService.delete(item.Id_race!).subscribe({
       next: () => {
-        this.successMessage = 'Race supprimée avec succès !';
+        this.successMessage.set('Race supprimée avec succès !');
         this.loadAll();
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Erreur lors de la suppression.';
+        this.errorMessage.set(err.error?.message || 'Erreur lors de la suppression.');
         console.error('Erreur suppression:', err);
       }
     });
   }
-
-  // ── Méthodes utilitaires ───────────────────────────────────────
 
   private getEmptyForm(): Race {
     return {
@@ -128,9 +113,9 @@ export class RaceComponent implements OnInit {
     };
   }
 
-  private clearMessages(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
+  clearMessages(): void {
+    this.errorMessage.set('');
+    this.successMessage.set('');
   }
 
   private closeModal(): void {

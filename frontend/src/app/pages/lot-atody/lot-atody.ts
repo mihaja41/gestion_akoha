@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LotAtodyService } from '../../services/lot-atody.service';
@@ -17,57 +17,50 @@ export class LotAtodyComponent implements OnInit {
   private lotAtodyService = inject(LotAtodyService);
   private lotAkohoService = inject(LotAkohoService);
 
-  /** Liste de tous les lots d'œufs */
-  items: LotAtody[] = [];
-
-  /** Cache des lots de poulets (pour afficher le numéro) */
-  lotsAkohoMap: Map<number, LotAkoho> = new Map();
-
-  /** Objet formulaire */
+  items = signal<LotAtody[]>([]);
+  lotsAkohoMap = signal(new Map<number, LotAkoho>());
   formData: LotAtody = this.getEmptyForm();
-
-  /** Numéro de lot saisi par l'utilisateur dans le formulaire */
   formNumeroLot: number | null = null;
-
-  /** Message d'erreur lié à la résolution du numéro de lot */
-  lotLookupError = '';
-
+  lotLookupError = signal('');
   formMode: 'create' | 'edit' = 'create';
-  loading = false;
-  errorMessage = '';
-  successMessage = '';
+  loading = signal(false);
+  errorMessage = signal('');
+  successMessage = signal('');
 
   ngOnInit(): void {
     this.loadAll();
   }
 
-  // ── Chargement ─────────────────────────────────────────────────
-
   loadAll(): void {
-    this.loading = true;
-    this.errorMessage = '';
+    this.loading.set(true);
+    this.errorMessage.set('');
 
     this.lotAtodyService.getAll().subscribe({
       next: (data) => {
-        this.items = data;
-        this.loading = false;
+        this.items.set(data);
+        this.loading.set(false);
         this.loadLotsInfo();
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Erreur lors du chargement des données.';
-        this.loading = false;
+        this.errorMessage.set(err.error?.message || 'Erreur lors du chargement des données.');
+        this.loading.set(false);
         console.error('Erreur chargement:', err);
       }
     });
   }
 
-  /** Charger les infos des lots référencés pour afficher le numéro au lieu de l'ID */
   loadLotsInfo(): void {
-    const uniqueIds = [...new Set(this.items.map(i => i.Id_lot_akoho))];
+    const uniqueIds = [...new Set(this.items().map(i => i.Id_lot_akoho))];
     uniqueIds.forEach(id => {
-      if (!this.lotsAkohoMap.has(id)) {
+      if (!this.lotsAkohoMap().has(id)) {
         this.lotAkohoService.getById(id).subscribe({
-          next: (lot) => this.lotsAkohoMap.set(id, lot),
+          next: (lot) => {
+            this.lotsAkohoMap.update(map => {
+              const newMap = new Map(map);
+              newMap.set(id, lot);
+              return newMap;
+            });
+          },
           error: () => {}
         });
       }
@@ -75,17 +68,15 @@ export class LotAtodyComponent implements OnInit {
   }
 
   getLotNumero(idLotAkoho: number): string {
-    const lot = this.lotsAkohoMap.get(idLotAkoho);
+    const lot = this.lotsAkohoMap().get(idLotAkoho);
     return lot ? `Lot n°${lot.numero}` : `Lot #${idLotAkoho}`;
   }
-
-  // ── CRUD ───────────────────────────────────────────────────────
 
   prepareCreate(): void {
     this.formMode = 'create';
     this.formData = this.getEmptyForm();
     this.formNumeroLot = null;
-    this.lotLookupError = '';
+    this.lotLookupError.set('');
     this.clearMessages();
   }
 
@@ -95,30 +86,33 @@ export class LotAtodyComponent implements OnInit {
     if (this.formData.date_entree) {
       this.formData.date_entree = this.formData.date_entree.substring(0, 10);
     }
-    const lot = this.lotsAkohoMap.get(item.Id_lot_akoho);
+    const lot = this.lotsAkohoMap().get(item.Id_lot_akoho);
     this.formNumeroLot = lot ? lot.numero : null;
-    this.lotLookupError = '';
+    this.lotLookupError.set('');
     this.clearMessages();
   }
 
   save(): void {
     this.clearMessages();
-    this.lotLookupError = '';
+    this.lotLookupError.set('');
 
     if (!this.formNumeroLot) {
-      this.lotLookupError = 'Veuillez saisir un numéro de lot de poulets.';
+      this.lotLookupError.set('Veuillez saisir un numéro de lot de poulets.');
       return;
     }
 
-    // Résoudre le numéro de lot → Id_lot_akoho, puis sauvegarder
     this.lotAkohoService.getByNumero(this.formNumeroLot).subscribe({
       next: (lot) => {
         this.formData.Id_lot_akoho = lot.Id_lot_akoho!;
-        this.lotsAkohoMap.set(lot.Id_lot_akoho!, lot);
+        this.lotsAkohoMap.update(map => {
+          const newMap = new Map(map);
+          newMap.set(lot.Id_lot_akoho!, lot);
+          return newMap;
+        });
         this.doSave();
       },
       error: (err) => {
-        this.lotLookupError = err.error?.message || `Aucun lot de poulets trouvé avec le numéro ${this.formNumeroLot}.`;
+        this.lotLookupError.set(err.error?.message || `Aucun lot de poulets trouvé avec le numéro ${this.formNumeroLot}.`);
       }
     });
   }
@@ -127,24 +121,24 @@ export class LotAtodyComponent implements OnInit {
     if (this.formMode === 'create') {
       this.lotAtodyService.create(this.formData).subscribe({
         next: () => {
-          this.successMessage = 'Lot d\'œufs créé avec succès !';
+          this.successMessage.set('Lot d\'œufs créé avec succès !');
           this.loadAll();
           this.closeModal();
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'Erreur lors de la création.';
+          this.errorMessage.set(err.error?.message || 'Erreur lors de la création.');
           console.error('Erreur création:', err);
         }
       });
     } else {
       this.lotAtodyService.update(this.formData.Id_lot_atody!, this.formData).subscribe({
         next: () => {
-          this.successMessage = 'Lot d\'œufs modifié avec succès !';
+          this.successMessage.set('Lot d\'œufs modifié avec succès !');
           this.loadAll();
           this.closeModal();
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'Erreur lors de la modification.';
+          this.errorMessage.set(err.error?.message || 'Erreur lors de la modification.');
           console.error('Erreur modification:', err);
         }
       });
@@ -160,17 +154,15 @@ export class LotAtodyComponent implements OnInit {
 
     this.lotAtodyService.delete(item.Id_lot_atody!).subscribe({
       next: () => {
-        this.successMessage = 'Lot d\'œufs supprimé avec succès !';
+        this.successMessage.set('Lot d\'œufs supprimé avec succès !');
         this.loadAll();
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Erreur lors de la suppression.';
+        this.errorMessage.set(err.error?.message || 'Erreur lors de la suppression.');
         console.error('Erreur suppression:', err);
       }
     });
   }
-
-  // ── Utilitaires ────────────────────────────────────────────────
 
   formatDate(dateStr: string): string {
     if (!dateStr) return '';
@@ -188,9 +180,9 @@ export class LotAtodyComponent implements OnInit {
     };
   }
 
-  private clearMessages(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
+  clearMessages(): void {
+    this.errorMessage.set('');
+    this.successMessage.set('');
   }
 
   private closeModal(): void {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LotAkohoService } from '../../services/lot-akoho.service';
@@ -17,46 +17,31 @@ export class LotAkohoComponent implements OnInit {
   private lotAkohoService = inject(LotAkohoService);
   private raceService = inject(RaceService);
 
-  /** Liste de tous les lots de poulets */
-  lotsAkoho: LotAkoho[] = [];
-
-  /** Liste des races (pour le <select> du formulaire) */
-  races: Race[] = [];
-
-  /** Objet formulaire pour la création/modification */
+  lotsAkoho = signal<LotAkoho[]>([]);
+  races = signal<Race[]>([]);
   formData: LotAkoho = this.getEmptyForm();
-
-  /** Mode du formulaire : 'create' ou 'edit' */
   formMode: 'create' | 'edit' = 'create';
-
-  /** Indicateur de chargement */
-  loading = false;
-
-  /** Message d'erreur à afficher */
-  errorMessage = '';
-
-  /** Message de succès à afficher */
-  successMessage = '';
+  loading = signal(false);
+  errorMessage = signal('');
+  successMessage = signal('');
 
   ngOnInit(): void {
     this.loadAll();
     this.loadRaces();
   }
 
-  // ── Méthodes CRUD ──────────────────────────────────────────────
-
   loadAll(): void {
-    this.loading = true;
-    this.errorMessage = '';
+    this.loading.set(true);
+    this.errorMessage.set('');
 
     this.lotAkohoService.getAll().subscribe({
       next: (data) => {
-        this.lotsAkoho = data;
-        this.loading = false;
+        this.lotsAkoho.set(data);
+        this.loading.set(false);
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Erreur lors du chargement des lots de poulets.';
-        this.loading = false;
+        this.errorMessage.set(err.error?.message || 'Erreur lors du chargement des lots de poulets.');
+        this.loading.set(false);
         console.error('Erreur chargement:', err);
       }
     });
@@ -64,13 +49,13 @@ export class LotAkohoComponent implements OnInit {
 
   loadRaces(): void {
     this.raceService.getAll().subscribe({
-      next: (data) => this.races = data,
+      next: (data) => this.races.set(data),
       error: (err) => console.error('Erreur chargement races:', err)
     });
   }
 
   getRaceName(idRace: number): string {
-    const race = this.races.find(r => r.Id_race === idRace);
+    const race = this.races().find(r => r.Id_race === idRace);
     return race ? race.nom : `Race #${idRace}`;
   }
 
@@ -83,7 +68,6 @@ export class LotAkohoComponent implements OnInit {
   prepareEdit(item: LotAkoho): void {
     this.formMode = 'edit';
     this.formData = { ...item };
-    // Formater la date pour l'input date HTML (YYYY-MM-DD)
     if (this.formData.date_entree) {
       this.formData.date_entree = this.formData.date_entree.substring(0, 10);
     }
@@ -96,24 +80,24 @@ export class LotAkohoComponent implements OnInit {
     if (this.formMode === 'create') {
       this.lotAkohoService.create(this.formData).subscribe({
         next: () => {
-          this.successMessage = 'Lot de poulets créé avec succès !';
+          this.successMessage.set('Lot de poulets créé avec succès !');
           this.loadAll();
           this.closeModal();
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'Erreur lors de la création.';
+          this.errorMessage.set(err.error?.message || 'Erreur lors de la création.');
           console.error('Erreur création:', err);
         }
       });
     } else {
       this.lotAkohoService.update(this.formData.Id_lot_akoho!, this.formData).subscribe({
         next: () => {
-          this.successMessage = 'Lot de poulets modifié avec succès !';
+          this.successMessage.set('Lot de poulets modifié avec succès !');
           this.loadAll();
           this.closeModal();
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'Erreur lors de la modification.';
+          this.errorMessage.set(err.error?.message || 'Erreur lors de la modification.');
           console.error('Erreur modification:', err);
         }
       });
@@ -129,19 +113,16 @@ export class LotAkohoComponent implements OnInit {
 
     this.lotAkohoService.delete(item.Id_lot_akoho!).subscribe({
       next: () => {
-        this.successMessage = 'Lot de poulets supprimé avec succès !';
+        this.successMessage.set('Lot de poulets supprimé avec succès !');
         this.loadAll();
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Erreur lors de la suppression.';
+        this.errorMessage.set(err.error?.message || 'Erreur lors de la suppression.');
         console.error('Erreur suppression:', err);
       }
     });
   }
 
-  // ── Méthodes utilitaires ───────────────────────────────────────
-
-  /** Formater une date ISO en format lisible */
   formatDate(dateStr: string): string {
     if (!dateStr) return '';
     const date = new Date(dateStr);
@@ -160,9 +141,9 @@ export class LotAkohoComponent implements OnInit {
     };
   }
 
-  private clearMessages(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
+  clearMessages(): void {
+    this.errorMessage.set('');
+    this.successMessage.set('');
   }
 
   private closeModal(): void {

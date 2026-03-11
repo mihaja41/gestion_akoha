@@ -4,7 +4,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h2 class="mb-1">
-        <i class="bi bi-shop me-2"></i>
+        <i class="bi bi-box-seam me-2"></i>
         Lots de Poulets
       </h2>
       <p class="text-muted mb-0">
@@ -22,24 +22,24 @@
   </div>
 
   <!-- ═══════════ MESSAGES D'ALERTE ═══════════ -->
-  @if (successMessage) {
+  @if (successMessage()) {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
       <i class="bi bi-check-circle me-2"></i>
-      {{ successMessage }}
-      <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+      {{ successMessage() }}
+      <button type="button" class="btn-close" (click)="clearMessages()"></button>
     </div>
   }
 
-  @if (errorMessage) {
+  @if (errorMessage()) {
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       <i class="bi bi-exclamation-triangle me-2"></i>
-      {{ errorMessage }}
-      <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+      {{ errorMessage() }}
+      <button type="button" class="btn-close" (click)="clearMessages()"></button>
     </div>
   }
 
   <!-- ═══════════ INDICATEUR DE CHARGEMENT ═══════════ -->
-  @if (loading) {
+  @if (loading()) {
     <div class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Chargement...</span>
@@ -49,7 +49,7 @@
   }
 
   <!-- ═══════════ TABLEAU DES DONNÉES ═══════════ -->
-  @if (!loading) {
+  @if (!loading()) {
     <div class="card shadow-sm">
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -67,7 +67,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of lotsAkoho; track item.Id_lot_akoho) {
+              @for (item of lotsAkoho(); track item.Id_lot_akoho) {
                 <tr>
                   <td>{{ item.Id_lot_akoho }}</td>
                   <td>{{ item.numero }}</td>
@@ -93,7 +93,7 @@
                 </tr>
               }
 
-              @if (lotsAkoho.length === 0) {
+              @if (lotsAkoho().length === 0) {
                 <tr>
                   <td colspan="8" class="text-center text-muted py-4">
                     <i class="bi bi-inbox fs-1 d-block mb-2"></i>
@@ -109,7 +109,7 @@
       <div class="card-footer text-muted">
         <small>
           <i class="bi bi-database me-1"></i>
-          {{ lotsAkoho.length }} enregistrement(s)
+          {{ lotsAkoho().length }} enregistrement(s)
         </small>
       </div>
     </div>
@@ -196,7 +196,7 @@
                       [(ngModel)]="formData.Id_race"
                       required>
                 <option [ngValue]="0" disabled>-- Choisir une race --</option>
-                @for (race of races; track race.Id_race) {
+                @for (race of races(); track race.Id_race) {
                   <option [ngValue]="race.Id_race">{{ race.nom }}</option>
                 }
               </select>

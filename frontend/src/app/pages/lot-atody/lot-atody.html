@@ -22,24 +22,24 @@
   </div>
 
   <!-- ═══════════ MESSAGES D'ALERTE ═══════════ -->
-  @if (successMessage) {
+  @if (successMessage()) {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
       <i class="bi bi-check-circle me-2"></i>
-      {{ successMessage }}
-      <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+      {{ successMessage() }}
+      <button type="button" class="btn-close" (click)="clearMessages()"></button>
     </div>
   }
 
-  @if (errorMessage) {
+  @if (errorMessage()) {
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       <i class="bi bi-exclamation-triangle me-2"></i>
-      {{ errorMessage }}
-      <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+      {{ errorMessage() }}
+      <button type="button" class="btn-close" (click)="clearMessages()"></button>
     </div>
   }
 
   <!-- ═══════════ INDICATEUR DE CHARGEMENT ═══════════ -->
-  @if (loading) {
+  @if (loading()) {
     <div class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Chargement...</span>
@@ -49,7 +49,7 @@
   }
 
   <!-- ═══════════ TABLEAU DES DONNÉES ═══════════ -->
-  @if (!loading) {
+  @if (!loading()) {
     <div class="card shadow-sm">
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -65,7 +65,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of items; track item.Id_lot_atody) {
+              @for (item of items(); track item.Id_lot_atody) {
                 <tr>
                   <td>{{ item.Id_lot_atody }}</td>
                   <td>{{ item.numero }}</td>
@@ -89,7 +89,7 @@
                 </tr>
               }
 
-              @if (items.length === 0) {
+              @if (items().length === 0) {
                 <tr>
                   <td colspan="6" class="text-center text-muted py-4">
                     <i class="bi bi-inbox fs-1 d-block mb-2"></i>
@@ -105,7 +105,7 @@
       <div class="card-footer text-muted">
         <small>
           <i class="bi bi-database me-1"></i>
-          {{ items.length }} enregistrement(s)
+          {{ items().length }} enregistrement(s)
         </small>
       </div>
     </div>
@@ -138,9 +138,9 @@
                      [(ngModel)]="formNumeroLot"
                      placeholder="Ex: 101"
                      required>
-              @if (lotLookupError) {
+              @if (lotLookupError()) {
                 <div class="text-danger mt-1">
-                  <small><i class="bi bi-exclamation-circle me-1"></i>{{ lotLookupError }}</small>
+                  <small><i class="bi bi-exclamation-circle me-1"></i>{{ lotLookupError() }}</small>
                 </div>
               }
             </div>
