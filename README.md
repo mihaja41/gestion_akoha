@@ -1,32 +1,102 @@
-# Fiompiana Akoho — API Backend
+# Fiompiana Akoho — Gestion d'élevage de poulets
 
-API REST pour la gestion d'un élevage de poulets (fiompiana akoho).
+Application web (Backend Express + Frontend Angular) pour la gestion d'un élevage de poulets.
 
-## Démarrage rapide
+---
+
+## Prérequis
+
+- **Docker** installé ([docs.docker.com](https://docs.docker.com/get-docker/))
+- **Node.js** (v18 ou supérieur) et **npm** installés ([nodejs.org](https://nodejs.org/))
+
+---
+
+## 1. Base de données — SQL Server avec Docker
+
+### 1.1 Puller l'image Docker SQL Server
 
 ```bash
-# 1. Lancer SQL Server avec Docker
-docker start sqlserver-akoho
+docker pull mcr.microsoft.com/mssql/server:2022-latest
+```
 
-# 2. Installer les dépendances
+### 1.2 Créer et lancer le container
+
+```bash
+docker run -e "ACCEPT_EULA=Y" \
+  -e "MSSQL_SA_PASSWORD=admin@12345" \
+  -p 1433:1433 \
+  --name sqlserver-akoho \
+  -d mcr.microsoft.com/mssql/server:2022-latest
+```
+
+> Pour relancer le container après un redémarrage : `docker start sqlserver-akoho`
+
+### 1.3 Créer la base de données
+
+Exécuter le script SQL de création des tables :
+
+```bash
+docker cp database/base.sql sqlserver-akoho:/tmp/base.sql
+docker exec -it sqlserver-akoho /opt/mssql-tools*/bin/sqlcmd -S localhost -U sa -P "admin@12345" -i /tmp/base.sql
+```
+
+---
+
+## 2. Backend (Express / Node.js)
+
+### 2.1 Créer le fichier `.env`
+
+Créer un fichier `backend/.env` avec le contenu suivant :
+
+```dotenv
+# Configuration du serveur
+PORT=3000
+
+# Configuration SQL Server (Docker)
+DB_HOST=localhost
+DB_PORT=1433
+DB_USER=sa
+DB_PASSWORD=admin@12345
+DB_NAME=gestion_akoho
+```
+
+### 2.2 Installer les dépendances et lancer
+
+```bash
 cd backend
 npm install
-
-# 3. Configurer le .env
-# Voir backend/.env (DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
-
-# 4. Lancer le serveur
 npm run dev
 ```
 
 Le serveur démarre sur `http://localhost:3000`.
 
-## Documentation Swagger
+### 2.3 Documentation Swagger
 
-Une fois le serveur lancé, accéder à :
+Une fois le serveur lancé :
 
-- **Interface Swagger UI** : [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
-- **Spec JSON brute** : [http://localhost:3000/api/docs.json](http://localhost:3000/api/docs.json)
+- **Swagger UI** : [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+- **Spec JSON** : [http://localhost:3000/api/docs.json](http://localhost:3000/api/docs.json)
+
+---
+
+## 3. Frontend (Angular)
+
+### 3.1 Installer les dépendances
+
+```bash
+cd frontend
+npm install
+```
+
+### 3.2 Lancer le serveur de développement
+
+```bash
+npm start
+```
+
+L'application démarre sur `http://localhost:4200` et se connecte automatiquement à l'API backend sur le port 3000.
+
+---
 
 ## Endpoints disponibles
 
@@ -49,51 +119,6 @@ Une fois le serveur lancé, accéder à :
 | `GET /api/lots-akoho/:id/situation?date=YYYY-MM-DD` | Situation d'**un** lot à une date |
 | `GET /api/situation-lots?date=YYYY-MM-DD` | Situation de **tous** les lots à une date |
 
-## Situation des lots — Ce que ça calcule
-
-L'endpoint `GET /api/situation-lots?date=2026-03-10` retourne pour **chaque lot** de poulets dont la date d'entrée est ≤ à la date demandée :
-
-```json
-{
-  "date": "2026-03-10",
-  "nombreLots": 2,
-  "situations": [
-    {
-      "numero": 101,
-      "nombreInitial": 100,
-      "prixAchatTotal": 800000,
-      "valeurNourritureConsommee": 15000,
-      "poidsMoyenParPoulet": 350.5,
-      "prixVenteSansMort": 876250,
-      "nombreMorts": 10,
-      "nombreApresMort": 90,
-      "ageEnJour": 28,
-      "ageEnSemaine": 4,
-      "prixVenteAvecMort": 788625,
-      "nombreOeufs": 200,
-      "valeurOeufs": 100000,
-      "beneficeSansMort": 161250,
-      "beneficeAvecMort": 73625
-    }
-  ]
-}
-```
-
-### Détail des calculs
-
-| Champ | Formule |
-|---|---|
-| `poidsMoyenParPoulet` | Σ `variation_poids` de la semaine 0 → âge actuel |
-| `valeurNourritureConsommee` | Nourriture des survivants + Σ nourriture de chaque groupe de morts (par tranche de vie) |
-| `prixVenteSansMort` | `poidsMoyen × nombreInitial × race.prix_vente` |
-| `prixVenteAvecMort` | `poidsMoyen × nombreApresMort × race.prix_vente` |
-| `nombreOeufs` | Total œufs − naissances − œufs pourris |
-| `valeurOeufs` | `nombreOeufs × race.prix_vente_atody` |
-| `beneficeSansMort` | `prixVenteSansMort + valeurOeufs − prixAchatTotal − valeurNourriture` |
-| `beneficeAvecMort` | `prixVenteAvecMort + valeurOeufs − prixAchatTotal − valeurNourriture` |
-
-> Pour l'explication détaillée des règles de gestion, voir [backend/doc/situation-lot-akoho.md](backend/doc/situation-lot-akoho.md).
-
 ## Architecture
 
 ```
@@ -103,18 +128,30 @@ backend/src/
 ├── config/
 │   ├── database.js               ← Connexion SQL Server
 │   └── swagger.js                ← Configuration Swagger/OpenAPI
-├── routes/                       ← Définition des URL (≈ @RequestMapping)
-├── controllers/                  ← Gestion requêtes HTTP (≈ @RestController)
-├── services/                     ← Logique métier (≈ @Service)
-├── repositories/                 ← Requêtes SQL (≈ @Repository)
-├── models/                       ← Modèles de données (≈ @Entity)
+├── routes/                       ← Définition des URL
+├── controllers/                  ← Gestion requêtes HTTP
+├── services/                     ← Logique métier
+├── repositories/                 ← Requêtes SQL
+├── models/                       ← Modèles de données
 └── middlewares/
-    └── errorHandler.js           ← Gestion erreurs (≈ @ControllerAdvice)
+    └── errorHandler.js           ← Gestion erreurs
+
+frontend/src/app/
+├── app.routes.ts                 ← Configuration des routes Angular
+├── components/
+│   └── sidebar/                  ← Menu latéral de navigation
+├── models/                       ← Interfaces TypeScript
+├── pages/
+│   ├── race/                     ← CRUD Races
+│   ├── description-race/         ← CRUD Description Races
+│   └── lot-akoho/                ← CRUD Lots de Poulets
+├── services/                     ← Services HTTP (appels API)
+└── environments/                 ← Config environnement (URL API)
 ```
 
 ## Documentation complémentaire
 
-- [backend/doc/init-project.md](doc/init-project.md) — Initialisation du projet (Docker, base de données, premier lancement)
-- [backend/doc/reset-base.md](doc/reset-base.md) — Réinitialiser la base de données
-- [backend/doc/situation-lot-akoho.md](doc/situation-lot-akoho.md) — Règles de gestion du calcul de situation
-- [backend/doc/situation-lots.md](doc/situation-lots.md) -> EndPoint pour obtenir la situation de tous les lots de poulets
+- [backend/doc/init-project.md](backend/doc/init-project.md) — Initialisation du projet
+- [backend/doc/reset-base.md](backend/doc/reset-base.md) — Réinitialiser la base de données
+- [backend/doc/situation-lot-akoho.md](backend/doc/situation-lot-akoho.md) — Règles de gestion du calcul de situation
+- [backend/doc/situation-lots.md](backend/doc/situation-lots.md) — Endpoint situation de tous les lots
