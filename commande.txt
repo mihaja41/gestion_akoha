@@ -1,0 +1,27 @@
+
+
+
+
+docker run -e "ACCEPT_EULA=Y" \
+-e "SA_PASSWORD=Admin@123" \
+-p 1433:1433 \
+--name sqlserver \r
+-d mcr.microsoft.com/mssql/server:2022-latest
+
+        SELECT name FROM sys.tables;
+
+
+docker exec -it sqlserver bash
+
+/opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P "Admin@123" -C
+
+USE gestion_akoho ; 
+
+/// Micopier anle base1.sql anaty fichier temporaire docker 
+
+docker cp /home/luckas/Bureau/fiompiana-akoho/database/base.sql sqlserver:/tmp/base.sql
+
+docker exec -i sqlserver /opt/mssql-tools18/bin/sqlcmd \
+  -S localhost -U SA -P "Admin@123" -C \
+  -d gestion_akoho \
+  -i /tmp/base.sql
