@@ -1,0 +1,225 @@
+<div class="container-fluid p-4">
+
+  <!-- ═══════════ EN-TÊTE DE PAGE ═══════════ -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">
+        <i class="bi bi-egg me-2"></i>
+        Lots de Poulets
+      </h2>
+      <p class="text-muted mb-0">
+        Gestion des lots de poulets (Akoho)
+      </p>
+    </div>
+
+    <button class="btn btn-primary"
+            (click)="prepareCreate()"
+            data-bs-toggle="modal"
+            data-bs-target="#lotAkohoFormModal">
+      <i class="bi bi-plus-circle me-1"></i>
+      Nouveau
+    </button>
+  </div>
+
+  <!-- ═══════════ MESSAGES D'ALERTE ═══════════ -->
+  @if (successMessage) {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle me-2"></i>
+      {{ successMessage }}
+      <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+    </div>
+  }
+
+  @if (errorMessage) {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      {{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+    </div>
+  }
+
+  <!-- ═══════════ INDICATEUR DE CHARGEMENT ═══════════ -->
+  @if (loading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="text-muted mt-2">Chargement des données...</p>
+    </div>
+  }
+
+  <!-- ═══════════ TABLEAU DES DONNÉES ═══════════ -->
+  @if (!loading) {
+    <div class="card shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th scope="col">#ID</th>
+                <th scope="col">Numéro</th>
+                <th scope="col">Date d'entrée</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Âge (semaines)</th>
+                <th scope="col">Prix d'achat (Ar)</th>
+                <th scope="col">Race</th>
+                <th scope="col" class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of lotsAkoho; track item.Id_lot_akoho) {
+                <tr>
+                  <td>{{ item.Id_lot_akoho }}</td>
+                  <td>{{ item.numero }}</td>
+                  <td>{{ formatDate(item.date_entree) }}</td>
+                  <td>{{ item.nombre }}</td>
+                  <td>{{ item.age }}</td>
+                  <td>{{ item.prix_achat }}</td>
+                  <td>{{ getRaceName(item.Id_race) }}</td>
+                  <td class="text-center">
+                    <button class="btn btn-sm btn-outline-warning me-1"
+                            (click)="prepareEdit(item)"
+                            data-bs-toggle="modal"
+                            data-bs-target="#lotAkohoFormModal"
+                            title="Modifier">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger"
+                            (click)="deleteItem(item)"
+                            title="Supprimer">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+
+              @if (lotsAkoho.length === 0) {
+                <tr>
+                  <td colspan="8" class="text-center text-muted py-4">
+                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                    Aucun lot de poulets trouvé.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-footer text-muted">
+        <small>
+          <i class="bi bi-database me-1"></i>
+          {{ lotsAkoho.length }} enregistrement(s)
+        </small>
+      </div>
+    </div>
+  }
+
+  <!-- ═══════════ MODAL FORMULAIRE (Créer / Modifier) ═══════════ -->
+  <div class="modal fade" id="lotAkohoFormModal" tabindex="-1" aria-labelledby="lotAkohoFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="lotAkohoFormModalLabel">
+            @if (formMode === 'create') {
+              <i class="bi bi-plus-circle me-2"></i>Nouveau Lot de Poulets
+            } @else {
+              <i class="bi bi-pencil-square me-2"></i>Modifier Lot de Poulets
+            }
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+
+        <div class="modal-body">
+          <form>
+            <div class="mb-3">
+              <label for="numero" class="form-label">Numéro</label>
+              <input type="number"
+                     class="form-control"
+                     id="numero"
+                     name="numero"
+                     [(ngModel)]="formData.numero"
+                     placeholder="Ex: 101"
+                     required>
+            </div>
+
+            <div class="mb-3">
+              <label for="dateEntree" class="form-label">Date d'entrée</label>
+              <input type="date"
+                     class="form-control"
+                     id="dateEntree"
+                     name="dateEntree"
+                     [(ngModel)]="formData.date_entree"
+                     required>
+            </div>
+
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre</label>
+              <input type="number"
+                     class="form-control"
+                     id="nombre"
+                     name="nombre"
+                     [(ngModel)]="formData.nombre"
+                     placeholder="Ex: 100"
+                     required>
+            </div>
+
+            <div class="mb-3">
+              <label for="age" class="form-label">Âge (semaines)</label>
+              <input type="number"
+                     class="form-control"
+                     id="age"
+                     name="age"
+                     [(ngModel)]="formData.age"
+                     placeholder="Ex: 0"
+                     required>
+            </div>
+
+            <div class="mb-3">
+              <label for="prixAchat" class="form-label">Prix d'achat (Ar)</label>
+              <input type="number"
+                     class="form-control"
+                     id="prixAchat"
+                     name="prixAchat"
+                     [(ngModel)]="formData.prix_achat"
+                     placeholder="Ex: 800000"
+                     step="0.01"
+                     required>
+            </div>
+
+            <div class="mb-3">
+              <label for="idRace" class="form-label">Race</label>
+              <select class="form-select"
+                      id="idRace"
+                      name="idRace"
+                      [(ngModel)]="formData.Id_race"
+                      required>
+                <option [ngValue]="0" disabled>-- Choisir une race --</option>
+                @for (race of races; track race.Id_race) {
+                  <option [ngValue]="race.Id_race">{{ race.nom }}</option>
+                }
+              </select>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle me-1"></i>
+            Annuler
+          </button>
+          <button type="button" class="btn btn-primary" (click)="save()">
+            @if (formMode === 'create') {
+              <i class="bi bi-plus-circle me-1"></i>Créer
+            } @else {
+              <i class="bi bi-check-circle me-1"></i>Enregistrer
+            }
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

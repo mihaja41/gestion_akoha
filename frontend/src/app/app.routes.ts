@@ -39,9 +39,10 @@ export const routes: Routes = [
       import('./pages/race/race').then(m => m.RaceComponent)
   },
 
-  // ── Ajoute tes prochaines routes ici ──
-  // {
-  //   path: 'lots-akoho',
-  //   loadComponent: () => import('./pages/lot-akoho/lot-akoho').then(m => m.LotAkohoComponent)
-  // },
+  // Route pour la page Lots de Poulets
+  {
+    path: 'lots-akoho',
+    loadComponent: () =>
+      import('./pages/lot-akoho/lot-akoho').then(m => m.LotAkohoComponent)
+  },
 ];

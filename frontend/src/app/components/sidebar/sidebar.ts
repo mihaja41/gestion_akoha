@@ -38,7 +38,6 @@ export class SidebarComponent {
   menuItems = [
     { label: 'Races', icon: 'bi-tags', route: '/races' },
     { label: 'Description Races', icon: 'bi-card-list', route: '/description-races' },
-    // ── Ajoute tes prochaines pages ici ──
-    // { label: 'Lots Akoho', icon: 'bi-egg', route: '/lots-akoho' },
+    { label: 'Lots Akoho', icon: 'bi-egg', route: '/lots-akoho' },
   ];
 }
