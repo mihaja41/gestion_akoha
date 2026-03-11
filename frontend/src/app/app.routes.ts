@@ -59,4 +59,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/lot-atody/lot-atody').then(m => m.LotAtodyComponent)
   },
+
+  // Route pour la page Situation des Lots
+  {
+    path: 'situation-lots',
+    loadComponent: () =>
+      import('./pages/situation-lots/situation-lots').then(m => m.SituationLotsComponent)
+  },
 ];

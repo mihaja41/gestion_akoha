@@ -1,0 +1,21 @@
+:host {
+  display: block;
+}
+
+.table th {
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+
+.table td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.text-success {
+  color: #198754 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}

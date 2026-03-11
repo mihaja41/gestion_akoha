@@ -1,0 +1,130 @@
+<div class="container-fluid p-4">
+
+  <!-- ═══════════ EN-TÊTE DE PAGE ═══════════ -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">
+        <i class="bi bi-bar-chart-line me-2"></i>
+        Situation des Lots
+      </h2>
+      <p class="text-muted mb-0">
+        Vue d'ensemble de tous les lots de poulets à une date donnée
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════ SÉLECTION DE DATE ═══════════ -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row align-items-end">
+        <div class="col-auto">
+          <label for="dateSituation" class="form-label fw-semibold">
+            <i class="bi bi-calendar-event me-1"></i>Date de situation
+          </label>
+          <input type="date"
+                 class="form-control"
+                 id="dateSituation"
+                 name="dateSituation"
+                 [(ngModel)]="selectedDate"
+                 style="width: 220px;">
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-primary" (click)="loadSituation()">
+            <i class="bi bi-search me-1"></i>
+            Consulter
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ MESSAGE D'ERREUR ═══════════ -->
+  @if (errorMessage()) {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      {{ errorMessage() }}
+      <button type="button" class="btn-close" (click)="errorMessage.set('')"></button>
+    </div>
+  }
+
+  <!-- ═══════════ INDICATEUR DE CHARGEMENT ═══════════ -->
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="text-muted mt-2">Calcul de la situation en cours...</p>
+    </div>
+  }
+
+  <!-- ═══════════ TABLEAU DES SITUATIONS ═══════════ -->
+  @if (!loading()) {
+    <div class="card shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th scope="col">Lot</th>
+                <th scope="col" class="text-end">Nombre initial</th>
+                <th scope="col" class="text-end">Âge (sem.)</th>
+                <th scope="col" class="text-end">Poids moyen (g)</th>
+                <th scope="col" class="text-end">Morts</th>
+                <th scope="col" class="text-end">Restants</th>
+                <th scope="col" class="text-end">Œufs</th>
+                <th scope="col" class="text-end">Prix achat</th>
+                <th scope="col" class="text-end">Nourriture</th>
+                <th scope="col" class="text-end">Valeur œufs</th>
+                <th scope="col" class="text-end">Vente (sans mort)</th>
+                <th scope="col" class="text-end">Vente (avec mort)</th>
+                <th scope="col" class="text-end">Bénéfice (sans mort)</th>
+                <th scope="col" class="text-end">Bénéfice (avec mort)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of situations(); track item.numero) {
+                <tr>
+                  <td class="fw-semibold">Lot n°{{ item.numero }}</td>
+                  <td class="text-end">{{ item.nombreInitial }}</td>
+                  <td class="text-end">{{ item.ageEnSemaine }}</td>
+                  <td class="text-end">{{ formatNumber(item.poidsMoyenParPoulet) }}</td>
+                  <td class="text-end">{{ item.nombreMorts }}</td>
+                  <td class="text-end">{{ item.nombreApresMort }}</td>
+                  <td class="text-end">{{ item.nombreOeufs }}</td>
+                  <td class="text-end">{{ formatCurrency(item.prixAchatTotal) }}</td>
+                  <td class="text-end">{{ formatCurrency(item.valeurNourritureConsommee) }}</td>
+                  <td class="text-end">{{ formatCurrency(item.valeurOeufs) }}</td>
+                  <td class="text-end">{{ formatCurrency(item.prixVenteSansMort) }}</td>
+                  <td class="text-end">{{ formatCurrency(item.prixVenteAvecMort) }}</td>
+                  <td class="text-end" [class]="getBeneficeClass(item.beneficeSansMort)">
+                    {{ formatCurrency(item.beneficeSansMort) }}
+                  </td>
+                  <td class="text-end" [class]="getBeneficeClass(item.beneficeAvecMort)">
+                    {{ formatCurrency(item.beneficeAvecMort) }}
+                  </td>
+                </tr>
+              }
+
+              @if (situations().length === 0) {
+                <tr>
+                  <td colspan="14" class="text-center text-muted py-4">
+                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                    Aucun lot trouvé pour cette date.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-footer text-muted">
+        <small>
+          <i class="bi bi-database me-1"></i>
+          {{ situations().length }} lot(s) au {{ selectedDate }}
+        </small>
+      </div>
+    </div>
+  }
+
+</div>
